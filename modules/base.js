@@ -323,5 +323,5 @@ export function deg2rad(deg) {
 };
 
 export function rad2deg(rad) {
-    return deg * 180 * x / Math.PI;
+    return 180 * rad / Math.PI;
 };
