@@ -71,16 +71,16 @@ const TimePlot = ({ pointData, box, xlim, ylim, title }) => {
             scales: {
                 x: {
                     type: 'linear',
-                    suggestedMin: xlim ? xlim[0] : null,
-                    suggestedMax: xlim ? xlim[1] : null,
+                    min: xlim ? xlim[0] : null,
+                    max: xlim ? xlim[1] : null,
                     gridLines: {
                         display: false,
                         color: "#FFFFFF"
                     },
                 },
                 y: {
-                    suggestedMin: ylim ? ylim[0] : null,
-                    suggestedMax: ylim ? ylim[1] : null,
+                    min: ylim ? ylim[0] : null,
+                    max: ylim ? ylim[1] : null,
                 }
             },
 

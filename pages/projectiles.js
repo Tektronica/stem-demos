@@ -46,7 +46,8 @@ export default function Projectiles() {
         rectangle([target_distance - 0.5, 0], [target_distance + 0.5, target_height]),  // right box
     ];
 
-    const xlim02 = [0, target_distance]
+    const xlim02 = [-0.5, target_distance]
+    const ylim02 = [0.5, null]
 
     // third demo ----------------------------------------
     launch_height = 1;  // m/s
@@ -70,7 +71,8 @@ export default function Projectiles() {
         rectangle([target_distance - 0.5, 0], [target_distance + 0.5, target_height]),  // right box
     ];
 
-    const xlim03 = [0, target_distance]
+    const xlim03 = [-0.5, target_distance]
+    const ylim03 = [0, null]
 
     // fourth demo ----------------------------------------
     launch_height = 3;  // meters
@@ -97,7 +99,7 @@ export default function Projectiles() {
     ];
 
     const xlim04 = [0, target_distance]
-    const ylim04 = [null, ceiling_height + 0.4]
+    const ylim04 = [0, ceiling_height + 0.4]
 
     console.log(`Launch Angle: ${launch_angle}`);
     console.log(`Target Angle: ${target_angle}`);
@@ -120,6 +122,7 @@ export default function Projectiles() {
                     pointData={plotData02}
                     box={boxes02}
                     xlim={xlim02}
+                    ylim={ylim02}
                     title='Projectile Demo #2' />
             </ShadowBox>
 
@@ -131,6 +134,7 @@ export default function Projectiles() {
                     pointData={plotData03}
                     box={boxes03}
                     xlim={xlim03}
+                    ylim={ylim03}
                     title='Projectile Demo #3' />
             </ShadowBox>
 
