@@ -1,7 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
+import annotationPlugin from 'chartjs-plugin-annotation';
 
-const TimePlot = ({ pointData }) => {
+Chart.register(annotationPlugin);
+
+const TimePlot = ({pointData, box} ) => {
 
     // https://stackoverflow.com/questions/70684106/react-chartjs-2-typeerror-undefined-is-not-an-object-evaluating-nextdatasets
     // https://www.learnnext.blog/blogs/using-chartjs-in-your-nextjs-application
@@ -9,13 +12,20 @@ const TimePlot = ({ pointData }) => {
     // https://stackoverflow.com/questions/38341758/how-to-dynamically-set-chartjs-line-chart-width-based-on-dataset-size
     // https://blog.bitsrc.io/customizing-chart-js-in-react-2199fa81530a
 
+    // Annotations
+    // https://stackoverflow.com/a/47108487/3382269
+    // https://github.com/reactchartjs/react-chartjs-2/issues/201#issuecomment-579630734
+    // https://stackoverflow.com/a/70134348/3382269
+    // https://www.chartjs.org/chartjs-plugin-annotation/latest/guide/integration.html
+
     // data is a list of point objects
 
-    const canvasEl = useRef(null);
+    const chartRef = useRef(null);
 
     useEffect(() => {
-        const ctx = canvasEl.current.getContext("2d");
-        // const ctx = document.getElementById("myChart");
+        // if (chartRef?.current) {
+        const chartToDraw = chartRef.current.getContext("2d");
+        // const chartToDraw = document.getElementById("myChart");
 
         const data = {
             datasets: [
@@ -26,82 +36,75 @@ const TimePlot = ({ pointData }) => {
                     showLine: true,
 
                     //label
-                    label: 'test',
-                    fill: false,
+                    label: 'hello',
                     lineTension: 0.1,
-                    backgroundColor: 'rgba(75,192,192,0.4)',
                     borderColor: 'rgba(75,192,192,1)',
-                    borderCapStyle: 'butt',
-                    borderDash: [],
-                    borderDashOffset: 0.0,
-                    borderJoinStyle: 'miter',
-                    pointBorderColor: 'rgba(75,192,192,1)',
-                    pointBackgroundColor: '#fff',
-                    pointBorderWidth: 1,
-                    pointHoverRadius: 5,
-                    pointHoverBackgroundColor: 'rgba(75,192,192,1)',
-                    pointHoverBorderColor: 'rgba(220,220,220,1)',
-                    pointHoverBorderWidth: 2,
-                    pointRadius: 1,
-                    pointHitRadius: 10,
+                    backgroundColor: 'rgba(75,192,192,1)',
+                    pointRadius: 0,
                 }
             ]
         };
 
-        const config = {
-            options: {
-                responsive: true,
-                title: {
-                    // optional: your title here
+
+        const options = {
+            responsive: true,
+            events: [],
+            animation: false,
+
+            scales: {
+                x: {
+                    type: 'linear',
+                    // suggestedMin: '0',
+                    // suggestedMax: '100',
+                    gridLines: {
+                        display: false,
+                        color: "#FFFFFF"
+                    },
                 },
-                events: [],
-                animation: false,
-                scales: {
-                    xAxes: [{
-                        type: 'linear', // MANDATORY TO SHOW YOUR POINTS! (THIS IS THE IMPORTANT BIT) 
-                        display: true, // mandatory
-                        ticks: {
-                            max: 100,
-                            min: 0,
-                            stepSize: 10
-                        },
-                        scaleLabel: {
-                            display: true, // mandatory
-                            labelString: 'Your label' // optional 
-                        },
-                    }],
-                    yAxes: [{ // and your y axis customization as you see fit...
-                        display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Count'
+            },
+
+            plugins: {
+                autocolors: false,
+                annotation: {
+                    drawTime: "afterDatasetsDraw", // (default)
+                    annotations: {
+                        box1: {
+                            type: 'box',
+                            xMin: 1,
+                            xMax: 2,
+                            yMin: 2,
+                            yMax: 3,
+                            backgroundColor: 'rgba(255, 99, 132, 0.25)'
                         }
-                    }],
+                    }
                 }
             }
+
         };
 
         const plotConfig = {
-            type: 'scatter',
+            type: 'line',
             data: data,
-            options: config,
+            options: options,
+            // plugins: annotationPlugin
         };
 
 
-        const myLineChart = new Chart(ctx, plotConfig)
+        const myLineChart = new Chart(chartToDraw, plotConfig)
 
 
         return function cleanup() {
             myLineChart.destroy();
         };
-    });
+
+    }, []);
 
     return (
         <>
             <div className=''>
                 <canvas
                     id="myChart"
-                    ref={canvasEl}
+                    ref={chartRef}
                 />
 
             </div>
