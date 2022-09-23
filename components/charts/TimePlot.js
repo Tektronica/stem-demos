@@ -4,7 +4,7 @@ import annotationPlugin from 'chartjs-plugin-annotation';
 
 Chart.register(annotationPlugin);
 
-const TimePlot = ({pointData, box} ) => {
+const TimePlot = ({ pointData, box, xlim, ylim, title }) => {
 
     // https://stackoverflow.com/questions/70684106/react-chartjs-2-typeerror-undefined-is-not-an-object-evaluating-nextdatasets
     // https://www.learnnext.blog/blogs/using-chartjs-in-your-nextjs-application
@@ -36,7 +36,7 @@ const TimePlot = ({pointData, box} ) => {
                     showLine: true,
 
                     //label
-                    label: 'hello',
+                    label: title,
                     lineTension: 0.1,
                     borderColor: 'rgba(75,192,192,1)',
                     backgroundColor: 'rgba(75,192,192,1)',
@@ -44,6 +44,23 @@ const TimePlot = ({pointData, box} ) => {
                 }
             ]
         };
+
+        const boxes = {}
+        if (box) {
+            const k = box.map((b, idx) => (
+                boxes[`box${idx}`] = {
+                    type: 'box',
+                    xMin: b.p1[0],
+                    yMin: b.p1[1],
+                    xMax: b.p2[0],
+                    yMax: b.p2[1],
+                    backgroundColor: 'rgba(255, 99, 132, 0.25)'
+                }
+            ));
+
+            console.log('boxes', boxes)
+        };
+
 
 
         const options = {
@@ -54,13 +71,17 @@ const TimePlot = ({pointData, box} ) => {
             scales: {
                 x: {
                     type: 'linear',
-                    // suggestedMin: '0',
-                    // suggestedMax: '100',
+                    suggestedMin: xlim ? xlim[0] : null,
+                    suggestedMax: xlim ? xlim[1] : null,
                     gridLines: {
                         display: false,
                         color: "#FFFFFF"
                     },
                 },
+                y: {
+                    suggestedMin: ylim ? ylim[0] : null,
+                    suggestedMax: ylim ? ylim[1] : null,
+                }
             },
 
             plugins: {
@@ -68,14 +89,7 @@ const TimePlot = ({pointData, box} ) => {
                 annotation: {
                     drawTime: "afterDatasetsDraw", // (default)
                     annotations: {
-                        box1: {
-                            type: 'box',
-                            xMin: 1,
-                            xMax: 2,
-                            yMin: 2,
-                            yMax: 3,
-                            backgroundColor: 'rgba(255, 99, 132, 0.25)'
-                        }
+                        ...boxes
                     }
                 }
             }

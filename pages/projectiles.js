@@ -40,6 +40,13 @@ export default function Projectiles() {
 
     launch_angle = get_launch_angle('velocity', params);
     const plotData02 = run_projectile_target_demo(launch_height, target_height, target_distance, launch_angle, launch_velocity);
+    const boxes02 = [
+        // rectangle(xy1, xy2, angle)
+        rectangle([-0.5, 0], [0.5 + 0.5, launch_height]),  // left box 
+        rectangle([target_distance - 0.5, 0], [target_distance + 0.5, target_height]),  // right box
+    ];
+
+    const xlim02 = [0, target_distance]
 
     // third demo ----------------------------------------
     launch_height = 1;  // m/s
@@ -57,6 +64,13 @@ export default function Projectiles() {
     launch_angle = get_launch_angle('angle', params);
     var v0 = get_launch_velocity(launch_angle, target_angle, target_distance);
     const plotData03 = run_target_angle_demo(launch_height, target_height, target_distance, launch_angle, v0);
+    const boxes03 = [
+        // rectangle(xy1, xy2, angle)
+        rectangle([-0.5, 0], [0.5 + 0.5, launch_height]),  // left box 
+        rectangle([target_distance - 0.5, 0], [target_distance + 0.5, target_height]),  // right box
+    ];
+
+    const xlim03 = [0, target_distance]
 
     // fourth demo ----------------------------------------
     launch_height = 3;  // meters
@@ -75,6 +89,15 @@ export default function Projectiles() {
     target_angle = get_target_angle(launch_height, target_distance, ceiling_height, launch_angle);
     v0 = get_launch_velocity(launch_angle, target_angle, target_distance);
     const plotData04 = run_projectile_target_ceiling_demo(launch_height, target_height, target_distance, launch_angle, v0);
+    const boxes04 = [
+        // rectangle(xy1, xy2, angle)
+        rectangle([-0.5, 0], [0.5 + 0.5, launch_height]),  // left box 
+        rectangle([target_distance - 0.5, 0], [target_distance + 0.5, target_height]),  // right box
+        rectangle([-0.5 - 0.5, ceiling_height], [target_distance + 0.5, ceiling_height + 0.5]),  // ceiling box
+    ];
+
+    const xlim04 = [0, target_distance]
+    const ylim04 = [null, ceiling_height + 0.4]
 
     console.log(`Launch Angle: ${launch_angle}`);
     console.log(`Target Angle: ${target_angle}`);
@@ -93,25 +116,39 @@ export default function Projectiles() {
                 <h1 className="text-3xl font-bold underline">
                     Projectile Demo #2
                 </h1>
-                <TimePlot pointData={plotData02} title='Projectile Demo #2' />
+                <TimePlot
+                    pointData={plotData02}
+                    box={boxes02}
+                    xlim={xlim02}
+                    title='Projectile Demo #2' />
             </ShadowBox>
 
             <ShadowBox>
                 <h1 className="text-3xl font-bold underline">
                     Projectile Demo #3
                 </h1>
-                <TimePlot pointData={plotData03} title='Projectile Demo #3' />
+                <TimePlot
+                    pointData={plotData03}
+                    box={boxes03}
+                    xlim={xlim03}
+                    title='Projectile Demo #3' />
             </ShadowBox>
 
             <ShadowBox>
                 <h1 className="text-3xl font-bold underline">
                     Projectile Demo #4
                 </h1>
-                <TimePlot pointData={plotData04} title='Projectile Demo #4' />
+                <TimePlot
+                    pointData={plotData04}
+                    box={boxes04}
+                    xlim={xlim04}
+                    ylim={ylim04}
+                    title='Projectile Demo #4' />
             </ShadowBox>
         </>
     )
 };
+
 
 const G = 9.81;  // m/s^2
 
@@ -148,6 +185,7 @@ function run_projectile_demo(h, theta, v0) {
 
     return plotData;
 };
+
 
 function run_projectile_target_demo(h, hfinal, xfinal, theta, v0) {
     const rad = deg2rad(theta);
@@ -218,6 +256,7 @@ function run_target_angle_demo(h, hfinal, xfinal, theta, v0) {
     return plotData;
 };
 
+
 function run_projectile_target_ceiling_demo(h, hfinal, xfinal, theta, v0) {
     const rad = deg2rad(theta);
     const Vx = v0 * Math.cos(rad);
@@ -250,6 +289,20 @@ function run_projectile_target_ceiling_demo(h, hfinal, xfinal, theta, v0) {
     };
 
     return plotData;
+};
+
+
+function rectangle(xy1, xy2, angle) {
+    /*
+        xy1     : [float, float] left-lower corner
+        xy2     : [float, float] right-upper corner
+        angle   : float rotation
+     */
+
+    const [x1, y1] = xy1;
+    const [x2, y2] = xy2;
+
+    return { p1: [x1, y1], p2: [x2, y2] };
 };
 
 
