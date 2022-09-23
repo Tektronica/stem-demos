@@ -38,6 +38,7 @@ function get_launch_angle(type, params) {
     var v0 = 0.0;  // launch (initial) velocity
     var xfinal = 0.0;  // x coordinate to target
     var yfinal = 0.0;  // y coordinate to target
+    var ymax = 0.0;  // max height of the projectile
     var theta_final = 0.0;  // final angle to target
 
     // https://stackoverflow.com/a/32138566/3382269
@@ -53,6 +54,11 @@ function get_launch_angle(type, params) {
             const rad_final = deg2rad(theta_final);
             return rad2deg(Math.atan((-xfinal * Math.tan(rad_final) - (2 * h) + (2 * yfinal)) / xfinal));
 
+        case 'ceiling':
+            // launch angle given the ceiling and coordinate distance to the target
+            ({ h, xfinal, yfinal, ymax } = params);
+            return rad2deg(Math.atan((2 * ((ymax - h) + (Math.sqrt((ymax - h) * (ymax - yfinal)))) / xfinal)));
+
         default:
             throw new Error("case does not exist");
     };
@@ -66,11 +72,18 @@ function get_launch_velocity(theta_initial, theta_final, xfinal) {
 };
 
 
+function get_target_angle(h, xfinal, ymax, theta_launch) {
+    const rad_launch = deg2rad(theta_launch);
+    return rad2deg(Math.atan(Math.tan(rad_launch) - ((xfinal) / (2 * (ymax - h))) * Math.tan(rad_launch) ** 2));
+};
+
+
 export {
     find_position_at_time,
     find_final_position,
     time_of_flight,
     find_height_max,
     get_launch_angle,
-    get_launch_velocity
+    get_launch_velocity,
+    get_target_angle
 };
