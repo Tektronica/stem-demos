@@ -2,7 +2,7 @@ import {
     get_launch_angle,
 } from "../ProjectileMath";
 
-import Projectile from "./StandardEquation";
+import { Projectile } from "./StandardEquation";
 
 /*
 PROJECTILE GIVEN VELOCITY INITIAL AND POSITION FINAL
@@ -17,7 +17,7 @@ This function constrains the projectile to a velocity initial and position final
 
 [constraints] ..... height initial, velocity initial, and angle initial.
 [function] ........ vertical position
-                    y(h0, θi, v0)
+                    y(h0, v0, θi)
  */
 
 function Cannon(h0, v0, xfinal, yfinal) {

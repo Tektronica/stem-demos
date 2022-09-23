@@ -20,18 +20,29 @@ const TimePlot = ({ pointData, box, xlim, ylim, title }) => {
 
     // data is a list of point objects
 
+    const canvasRef = useRef(null);
     const chartRef = useRef(null);
 
+    const destroyChart = () => {
+
+        if (chartRef.current) {
+            chartRef.current.destroy();
+            chartRef.current = null;
+        }
+    };
+
     useEffect(() => {
-        // if (chartRef?.current) {
-        const chartToDraw = chartRef.current.getContext("2d");
+
+        if (!canvasRef.current) return;
+
+        const chartToDraw = canvasRef.current.getContext("2d");
         // const chartToDraw = document.getElementById("myChart");
 
         const data = {
             datasets: [
                 {
                     // data
-                    data: pointData,
+                    data: null,
                     indexAxis: 'x',
                     showLine: true,
 
@@ -57,11 +68,7 @@ const TimePlot = ({ pointData, box, xlim, ylim, title }) => {
                     backgroundColor: 'rgba(255, 99, 132, 0.25)'
                 }
             ));
-
-            console.log('boxes', boxes)
         };
-
-
 
         const options = {
             responsive: true,
@@ -104,21 +111,33 @@ const TimePlot = ({ pointData, box, xlim, ylim, title }) => {
         };
 
 
-        const myLineChart = new Chart(chartToDraw, plotConfig)
+        chartRef.current = new Chart(chartToDraw, plotConfig)
 
 
         return function cleanup() {
-            myLineChart.destroy();
+            destroyChart();
         };
 
     }, []);
+
+    // mutable access to data when pointData changes
+    useEffect(() => {
+        // https://github.com/chartjs/Chart.js/issues/13#issuecomment-50232100
+        // https://www.chartjs.org/docs/latest/samples/animations/loop.html
+        // https://github.com/chartjs/Chart.js/blob/master/docs/samples/animations/loop.md
+        // https://codepen.io/webgeeker/pen/jKBqge
+        console.log('new data:', pointData)
+        chartRef.current.data.datasets[0].data = pointData;
+        chartRef.current.update();
+
+    }, [pointData]);
 
     return (
         <>
             <div className=''>
                 <canvas
                     id="myChart"
-                    ref={chartRef}
+                    ref={canvasRef}
                 />
 
             </div>

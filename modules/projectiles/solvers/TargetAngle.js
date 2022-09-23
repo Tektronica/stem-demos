@@ -3,8 +3,7 @@ import {
     get_launch_velocity,
 } from "../ProjectileMath";
 
-import Projectile from "./StandardEquation";
-
+import { Projectile } from "./StandardEquation";
 
 /*
 PROJECTILE GIVEN A KNOWN TARGET
@@ -22,7 +21,7 @@ This function constrains the projectile to a position final and angle final
 
 [constraints] ..... height initial, velocity initial, and angle initial.
 [function] ........ vertical position
-                    y(h0, θi, v0)
+                    y(h0, v0, θi)
  */
 
 function TargetAngle(h0, xfinal, yfinal, degf) {

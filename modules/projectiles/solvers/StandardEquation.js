@@ -1,5 +1,5 @@
 import { deg2rad, round, zeros, linspace } from "../../base";
-
+import { useEffect } from "react";
 import {
     find_final_position,
     time_of_flight,
@@ -16,7 +16,7 @@ This function provides the standard equation for a projectile without air resist
 
 [constraints] ..... height initial, velocity initial, and angle initial.
 [function] ........ vertical position
-                    y(h0, θi, v0)
+                    y(h0, v0, θi)
  */
 
 function Projectile(h0, v0, deg0) {
@@ -53,4 +53,41 @@ function Projectile(h0, v0, deg0) {
     return plotData;
 };
 
-export default Projectile;
+// this is a fake generator for now
+function* pointGenerator(h0, v0, deg0) {
+    console.log('this should run once')
+
+    const plotData = Projectile(h0, v0, deg0);
+
+    for (var pointObj of plotData) {
+        yield pointObj
+    };
+};
+
+
+// this is an async to handle position of a feature
+async function animateProjectile(h0, v0, deg0, setState) {
+
+    useEffect(() => {
+        async function animate() {
+            const dt = 100;
+            console.log('running animation here!')
+            for (const point of pointGenerator(h0, v0, deg0)) {
+                // https://stackoverflow.com/a/65506651/3382269
+                setState((current) => [...current, point])
+
+                // sleep the loop (await is non-blocking due to async)
+                await sleep(dt);  // ms
+            }
+        };
+        animate();
+    }, []);
+};
+
+
+// sleep function resolves its own promise after timeout
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+export { Projectile, animateProjectile };

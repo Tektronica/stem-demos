@@ -1,4 +1,5 @@
 // https://github.com/Tektronica/projectile_demos
+import { useState } from "react";
 
 import Layout from "../components/layout";
 import ShadowBox from "../components/containers/ShadowBox";
@@ -9,6 +10,7 @@ import TimePlot from "../components/charts/TimePlot";
 // custom math module imports
 import {
     Projectile,
+    animateProjectile,
     Cannon,
     TargetAngle,
     MaxCeiling
@@ -20,8 +22,12 @@ export default function Projectiles() {
     var launch_velocity = 10;  // m/s
     var launch_angle = 45;  // degrees
 
-    const plotData01 = Projectile(launch_height, launch_velocity, launch_angle);
-
+    // const plotData01 = Projectile(launch_height, launch_velocity, launch_angle);
+    const [plotData01, setPlotData01] = useState([])
+    console.log('starting animation')
+    animateProjectile(launch_height, launch_velocity, launch_angle, setPlotData01);
+    const xlim01 = [-0.5, 12]
+    const ylim01 = [0.5, 5]
 
     // second demo ---------------------------------------
     launch_height = 1;  // meters
@@ -38,7 +44,6 @@ export default function Projectiles() {
 
     const xlim02 = [-0.5, target_distance]
     const ylim02 = [0.5, null]
-
 
     // third demo ----------------------------------------
     launch_height = 1;  // m/s
@@ -81,7 +86,11 @@ export default function Projectiles() {
                 <h1 className="text-3xl font-bold underline">
                     Projectile Demo #1
                 </h1>
-                <TimePlot pointData={plotData01} title='Projectile Demo #1' />
+                <TimePlot
+                    pointData={plotData01}
+                    xlim={xlim01}
+                    ylim={ylim01}
+                    title='Projectile Demo #1' />
             </ShadowBox>
 
             <ShadowBox>
@@ -136,7 +145,6 @@ function rectangle(xy1, xy2, angle) {
 
     return { p1: [x1, y1], p2: [x2, y2] };
 };
-
 
 Projectiles.getLayout = function getLayout(page) {
     return (

@@ -4,7 +4,7 @@ import {
     get_target_angle
 } from "../ProjectileMath";
 
-import Projectile from "./StandardEquation";
+import { Projectile } from "./StandardEquation";
 
 /*
 PROJECTILE WITH MAX CEILING
@@ -26,7 +26,7 @@ This function constrains the projectile to a max trajectory height
 
 [constraints] ..... height initial, velocity initial, and angle initial.
 [function] ........ vertical position
-                    y(h0, θi, v0)
+                    y(h0, v0, θi)
  */
 
 function MaxCeiling(h0, xfinal, yfinal, ymax) {
