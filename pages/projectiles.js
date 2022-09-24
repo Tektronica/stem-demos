@@ -17,116 +17,126 @@ import {
 } from "../modules/projectiles/solvers";
 
 export default function Projectiles() {
+
     // first demo ----------------------------------------
     var launch_height = 2;  // meters
     var launch_velocity = 10;  // m/s
     var launch_angle = 45;  // degrees
 
     // const plotData01 = Projectile(launch_height, launch_velocity, launch_angle);
-    const [plotData01, setPlotData01] = useState([])
-    console.log('starting animation')
-    animateProjectile(launch_height, launch_velocity, launch_angle, setPlotData01);
-    const xlim01 = [-0.5, 12]
-    const ylim01 = [0.5, 5]
+    const [plotData, setPlotData] = useState([{ 'x': null, 'y': null }]);
+    const [xlim, setXlim] = useState([null, null]);
+    const [ylim, setYlim] = useState([null, null]);
+    const [boxes, setBoxes] = useState(null);
 
-    // second demo ---------------------------------------
-    launch_height = 1;  // meters
-    launch_velocity = 10;  // m/s
-    var target_distance = 8; // meters
-    var target_height = 2;  // meters
+    function selectData(type) {
+        switch (type) {
+            case 'projectile':
+                async function myfunc() {
+                    setPlotData([{ 'x': null, 'y': null }]);  // reset data
+                    animateProjectile(launch_height, launch_velocity, launch_angle, setPlotData);
+                }
+                myfunc();
 
-    const plotData02 = Cannon(launch_height, launch_velocity, target_distance, target_height);
-    const boxes02 = [
-        // rectangle(xy1, xy2, angle)
-        rectangle([-0.5, 0], [0.5 + 0.5, launch_height]),  // left box 
-        rectangle([target_distance - 0.5, 0], [target_distance + 0.5, target_height]),  // right box
-    ];
+                setXlim([-0.5, 12]);
+                setYlim([0.5, 5]);
+                setBoxes(null);
+                break;
 
-    const xlim02 = [-0.5, target_distance]
-    const ylim02 = [0.5, null]
+            case 'cannon':
+                // second demo ---------------------------------------
+                launch_height = 1;  // meters
+                launch_velocity = 10;  // m/s
+                var target_distance = 8; // meters
+                var target_height = 2;  // meters
 
-    // third demo ----------------------------------------
-    launch_height = 1;  // m/s
-    target_distance = 20;  // meters
-    target_height = 3; // meters
-    var target_angle = -45;  // degrees
+                setPlotData(Cannon(launch_height, launch_velocity, target_distance, target_height));
+                setBoxes([
+                    // rectangle(xy1, xy2, angle)
+                    rectangle([-0.5, 0], [0.5 + 0.5, launch_height]),  // left box 
+                    rectangle([target_distance - 0.5, 0], [target_distance + 0.5, target_height]),  // right box
+                ]);
 
-    const plotData03 = TargetAngle(launch_height, target_distance, target_height, target_angle);
-    const boxes03 = [
-        // rectangle(xy1, xy2, angle)
-        rectangle([-0.5, 0], [0.5 + 0.5, launch_height]),  // left box 
-        rectangle([target_distance - 0.5, 0], [target_distance + 0.5, target_height]),  // right box
-    ];
+                setXlim([-0.5, target_distance]);
+                setYlim([0.5, null]);
+                break;
 
-    const xlim03 = [-0.5, target_distance]
-    const ylim03 = [0, null]
+            case 'target':
+                // third demo ----------------------------------------
+                launch_height = 1;  // m/s
+                target_distance = 20;  // meters
+                target_height = 3; // meters
+                var target_angle = -45;  // degrees
 
+                setPlotData(TargetAngle(launch_height, target_distance, target_height, target_angle));
+                setBoxes([
+                    // rectangle(xy1, xy2, angle)
+                    rectangle([-0.5, 0], [0.5 + 0.5, launch_height]),  // left box 
+                    rectangle([target_distance - 0.5, 0], [target_distance + 0.5, target_height]),  // right box
+                ]);
 
-    // fourth demo ----------------------------------------
-    launch_height = 3;  // meters
-    target_distance = 10;  // meters
-    target_height = 1;  // meters
-    const ceiling_height = 5;  // meters
+                setXlim([-0.5, target_distance]);
+                setYlim([0, null]);
+                break;
 
-    const plotData04 = MaxCeiling(launch_height, target_distance, target_height, ceiling_height);
-    const boxes04 = [
-        // rectangle(xy1, xy2, angle)
-        rectangle([-0.5, 0], [0.5 + 0.5, launch_height]),  // left box 
-        rectangle([target_distance - 0.5, 0], [target_distance + 0.5, target_height]),  // right box
-        rectangle([-0.5 - 0.5, ceiling_height], [target_distance + 0.5, ceiling_height + 0.5]),  // ceiling box
-    ];
+            case 'ceiling':
+                // fourth demo ----------------------------------------
+                launch_height = 3;  // meters
+                target_distance = 10;  // meters
+                target_height = 1;  // meters
+                const ceiling_height = 5;  // meters
 
-    const xlim04 = [0, target_distance]
-    const ylim04 = [0, ceiling_height + 0.4]
+                setPlotData(MaxCeiling(launch_height, target_distance, target_height, ceiling_height));
+                setBoxes([
+                    // rectangle(xy1, xy2, angle)
+                    rectangle([-0.5, 0], [0.5 + 0.5, launch_height]),  // left box 
+                    rectangle([target_distance - 0.5, 0], [target_distance + 0.5, target_height]),  // right box
+                    rectangle([-0.5 - 0.5, ceiling_height], [target_distance + 0.5, ceiling_height + 0.5]),  // ceiling box
+                ]);
 
+                setXlim([0, target_distance]);
+                setYlim([0, ceiling_height + 0.4]);
+                break;
+        }
+    }
 
     return (
         <>
             <ShadowBox>
                 <h1 className="text-3xl font-bold underline">
-                    Projectile Demo #1
-                </h1>
-                <TimePlot
-                    pointData={plotData01}
-                    xlim={xlim01}
-                    ylim={ylim01}
-                    title='Projectile Demo #1' />
-            </ShadowBox>
-
-            <ShadowBox>
-                <h1 className="text-3xl font-bold underline">
                     Projectile Demo #2
                 </h1>
                 <TimePlot
-                    pointData={plotData02}
-                    box={boxes02}
-                    xlim={xlim02}
-                    ylim={ylim02}
+                    pointData={plotData}
+                    box={boxes}
+                    xlim={xlim}
+                    ylim={ylim}
                     title='Projectile Demo #2' />
             </ShadowBox>
 
             <ShadowBox>
-                <h1 className="text-3xl font-bold underline">
-                    Projectile Demo #3
-                </h1>
-                <TimePlot
-                    pointData={plotData03}
-                    box={boxes03}
-                    xlim={xlim03}
-                    ylim={ylim03}
-                    title='Projectile Demo #3' />
-            </ShadowBox>
-
-            <ShadowBox>
-                <h1 className="text-3xl font-bold underline">
-                    Projectile Demo #4
-                </h1>
-                <TimePlot
-                    pointData={plotData04}
-                    box={boxes04}
-                    xlim={xlim04}
-                    ylim={ylim04}
-                    title='Projectile Demo #4' />
+                <div className="grid gap-4 grid-cols-4">
+                    <button
+                        className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+                        onClick={() => (selectData('projectile'))}>
+                        Projectile
+                    </button>
+                    <button
+                        className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+                        onClick={() => (selectData('cannon'))}>
+                        Cannon
+                    </button>
+                    <button
+                        className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+                        onClick={() => (selectData('target'))}>
+                        Known Target
+                    </button>
+                    <button
+                        className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+                        onClick={() => (selectData('ceiling'))}>
+                        Max Ceiling
+                    </button>
+                </div>
             </ShadowBox>
         </>
     )

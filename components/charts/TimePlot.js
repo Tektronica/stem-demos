@@ -56,20 +56,6 @@ const TimePlot = ({ pointData, box, xlim, ylim, title }) => {
             ]
         };
 
-        const boxes = {}
-        if (box) {
-            const k = box.map((b, idx) => (
-                boxes[`box${idx}`] = {
-                    type: 'box',
-                    xMin: b.p1[0],
-                    yMin: b.p1[1],
-                    xMax: b.p2[0],
-                    yMax: b.p2[1],
-                    backgroundColor: 'rgba(255, 99, 132, 0.25)'
-                }
-            ));
-        };
-
         const options = {
             responsive: true,
             events: [],
@@ -96,11 +82,10 @@ const TimePlot = ({ pointData, box, xlim, ylim, title }) => {
                 annotation: {
                     drawTime: "afterDatasetsDraw", // (default)
                     annotations: {
-                        ...boxes
+                        // this is where ...boxes attributes would be
                     }
                 }
             }
-
         };
 
         const plotConfig = {
@@ -110,9 +95,7 @@ const TimePlot = ({ pointData, box, xlim, ylim, title }) => {
             // plugins: annotationPlugin
         };
 
-
         chartRef.current = new Chart(chartToDraw, plotConfig)
-
 
         return function cleanup() {
             destroyChart();
@@ -120,17 +103,57 @@ const TimePlot = ({ pointData, box, xlim, ylim, title }) => {
 
     }, []);
 
+
     // mutable access to data when pointData changes
     useEffect(() => {
         // https://github.com/chartjs/Chart.js/issues/13#issuecomment-50232100
         // https://www.chartjs.org/docs/latest/samples/animations/loop.html
         // https://github.com/chartjs/Chart.js/blob/master/docs/samples/animations/loop.md
         // https://codepen.io/webgeeker/pen/jKBqge
-        console.log('new data:', pointData)
+
         chartRef.current.data.datasets[0].data = pointData;
         chartRef.current.update();
 
     }, [pointData]);
+
+
+    // mutable access to update box attributes
+    useEffect(() => {
+
+        const boxes = {}
+        if (box) {
+            const k = box.map((b, idx) => (
+                boxes[`box${idx}`] = {
+                    type: 'box',
+                    xMin: b.p1[0],
+                    yMin: b.p1[1],
+                    xMax: b.p2[0],
+                    yMax: b.p2[1],
+                    backgroundColor: 'rgba(255, 99, 132, 0.25)'
+                }
+            ));
+        };
+
+        chartRef.current.options.plugins.annotation.annotations = boxes;
+        chartRef.current.update();
+
+    }, [box]);
+
+
+    // mutable access to update scale limits
+    useEffect(() => {
+        // https://stackoverflow.com/a/20100851/3382269
+        // The options are not reactive. Thus if you change them you need to re-render the chart.
+        // https://stackoverflow.com/a/38649297/3382269
+
+        chartRef.current.options.scales.x.min = xlim[0];
+        chartRef.current.options.scales.x.max = xlim[1];
+        chartRef.current.options.scales.y.min = ylim[0];
+        chartRef.current.options.scales.y.max = ylim[1];
+        chartRef.current.update();
+
+    }, [xlim, ylim]);
+
 
     return (
         <>

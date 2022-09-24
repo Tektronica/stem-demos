@@ -55,7 +55,6 @@ function Projectile(h0, v0, deg0) {
 
 // this is a fake generator for now
 function* pointGenerator(h0, v0, deg0) {
-    console.log('this should run once')
 
     const plotData = Projectile(h0, v0, deg0);
 
@@ -67,21 +66,16 @@ function* pointGenerator(h0, v0, deg0) {
 
 // this is an async to handle position of a feature
 async function animateProjectile(h0, v0, deg0, setState) {
+    const dt = 100;
+    for (const point of pointGenerator(h0, v0, deg0)) {
+        // https://stackoverflow.com/a/65506651/3382269
+        setState((current) => [...current, point])
 
-    useEffect(() => {
-        async function animate() {
-            const dt = 100;
-            console.log('running animation here!')
-            for (const point of pointGenerator(h0, v0, deg0)) {
-                // https://stackoverflow.com/a/65506651/3382269
-                setState((current) => [...current, point])
+        // sleep the loop (await is non-blocking due to async)
+        await sleep(dt);  // ms
+    }
 
-                // sleep the loop (await is non-blocking due to async)
-                await sleep(dt);  // ms
-            }
-        };
-        animate();
-    }, []);
+
 };
 
 
