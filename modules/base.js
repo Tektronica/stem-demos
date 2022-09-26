@@ -310,6 +310,8 @@ export function rfftfreq(n, d = 1.0) {
 };
 
 export function linspace(startValue, stopValue, cardinality) {
+    // cardinality: number of elements in a set
+
     var arr = [];
     var step = (stopValue - startValue) / (cardinality - 1);
     for (var i = 0; i < cardinality; i++) {
