@@ -18,7 +18,7 @@ import {
 import { arange, round } from "../modules/base";
 
 
-const WAIT_INTERVAL = 500;  // ms
+const WAIT_INTERVAL = 200;  // ms
 var timerID = null;
 
 export default function Projectiles() {

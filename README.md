@@ -22,3 +22,9 @@ This project in part utilizes the [chart.js](https://www.npmjs.com/package/chart
     * [Tailwind CSS](https://tailwindcss.com/) [(v2.2)](https://blog.tailwindcss.com/tailwindcss-2-2) with Next.js using the new [`Just-in-Time Mode`](https://tailwindcss.com/docs/just-in-time-mode) feature from Tailwind CSS.
 * API
     * [chart.js](https://www.npmjs.com/package/chart.js)
+
+# Demonstrations
+
+## Projectile Demo:
+
+![projectile-demo](public/projectile-demo.gif)
