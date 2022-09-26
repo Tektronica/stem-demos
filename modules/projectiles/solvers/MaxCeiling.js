@@ -41,8 +41,7 @@ function MaxCeiling(h0, xfinal, yfinal, ymax) {
     const degf = get_target_angle(h0, deg0, xfinal, ymax);
     const v0 = get_launch_velocity(deg0, degf, xfinal);
 
-    const plotData = Projectile(h0, v0, deg0)
-    return plotData;
+    return Projectile(h0, v0, deg0);
 };
 
 export default MaxCeiling;

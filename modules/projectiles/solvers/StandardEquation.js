@@ -1,5 +1,5 @@
 import { deg2rad, round, zeros, linspace } from "../../base";
-import { useEffect } from "react";
+
 import {
     find_final_position,
     time_of_flight,
@@ -24,19 +24,16 @@ function Projectile(h0, v0, deg0) {
     const Vx = v0 * Math.cos(rad0);
 
     // log the governing projectile equation
-    console.log(`Equation: y = ${h0} + ${round(Math.tan(rad0), 5)}x - ${round(G / (Vx ** 2 * 2.0), 5)}x^2`);
+    const eqn = `y(t) = ${h0} + ${round(Math.tan(rad0), 5)}x - ${round(G / (Vx ** 2 * 2.0), 5)}x^2`;
 
     // compute final x position
     const xfinal = find_final_position(h0, v0, deg0);
-    console.log(`Distance = ${round(xfinal, 3)} m`);
 
     // compute max height of projectile
     const ymax = find_height_max(h0, v0, deg0);
-    console.log(`Peak Height = ${round(ymax, 3)} m`);
 
     // compute time elapsed
     const tfinal = time_of_flight(h0, deg0, v0);
-    console.log(`Time of flight = ${round(tfinal, 3)} s`);
 
     // compute x and y values
     const xt = linspace(0, xfinal, 100);
@@ -50,7 +47,19 @@ function Projectile(h0, v0, deg0) {
         plotData[idx] = { x: xt[idx], y: yt[idx] };
     };
 
-    return plotData;
+    const results = {
+        eqn: eqn,
+        y0: h0,
+        v0: v0,
+        deg0: deg0,
+        xfinal: xfinal,
+        yfinal: yt[yt.length - 1],
+        degf: null,
+        ymax: ymax,
+        tfinal: tfinal
+    };
+
+    return [plotData, results];
 };
 
 // this is a fake generator for now
@@ -74,8 +83,6 @@ async function animateProjectile(h0, v0, deg0, setState) {
         // sleep the loop (await is non-blocking due to async)
         await sleep(dt);  // ms
     }
-
-
 };
 
 

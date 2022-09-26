@@ -30,8 +30,8 @@ function Cannon(h0, v0, xfinal, yfinal) {
     };
 
     const deg0 = get_launch_angle('velocity', params);
-    const plotData = Projectile(h0, v0, deg0)
-    return plotData;
+
+    return Projectile(h0, v0, deg0);
 };
 
 export default Cannon;

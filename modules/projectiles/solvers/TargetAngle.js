@@ -36,8 +36,7 @@ function TargetAngle(h0, xfinal, yfinal, degf) {
     const deg0 = get_launch_angle('angle', params);
     const v0 = get_launch_velocity(deg0, degf, xfinal);
 
-    const plotData = Projectile(h0, v0, deg0)
-    return plotData;
+    return Projectile(h0, v0, deg0);
 };
 
 export default TargetAngle;

@@ -15,7 +15,7 @@ import {
     TargetAngle,
     MaxCeiling
 } from "../modules/projectiles/solvers";
-import { linspace, arange } from "../modules/base";
+import { arange, round } from "../modules/base";
 
 
 const WAIT_INTERVAL = 500;  // ms
@@ -31,8 +31,21 @@ export default function Projectiles() {
 
     // range sliders
     const [launchConfig, setLaunchConfig] = useState({ y0: 2, v0: 10, deg0: 45 });
-    const [targetConfig, setTargetConfig] = useState({ xfinal: 8, yfinal: 2, degf: -45, ymax: 5 });
+    const [targetConfig, setTargetConfig] = useState({ xfinal: 8, yfinal: 2, degf: -45, ymax: 10 });
     const [activeMode, setActiveMode] = useState('cannon');
+
+    // plot results
+    const [results, setResults] = useState({
+        eqn: '',
+        y0: null,
+        v0: null,
+        deg0: null,
+        xfinal: null,
+        yfinal: null,
+        degf: null,
+        ymax: null,
+        tfinal: null,
+    });
 
     function getData() {
         switch (activeMode) {
@@ -46,13 +59,17 @@ export default function Projectiles() {
                 // }
                 // myfunc();
 
-                setPlotData(Projectile(y0, v0, deg0));
+                var [pointData, plotResults] = Projectile(y0, v0, deg0);
+                setPlotData(pointData);
+                setResults(plotResults);
 
+                // attributes
                 setBoxes([
                     // rectangle(xy1, xy2, deg0)
                     rectangle([-0.5, 0], [0.5 + 0.5, y0]),  // left box 
                 ]);
 
+                // limits
                 setXlim([0, null]);
                 setYlim([0, null]);
                 break;
@@ -62,13 +79,18 @@ export default function Projectiles() {
                 var { y0, v0 } = launchConfig;
                 var { xfinal, yfinal } = targetConfig;
 
-                setPlotData(Cannon(y0, v0, xfinal, yfinal));
+                var [pointData, plotResults] = Cannon(y0, v0, xfinal, yfinal);
+                setPlotData(pointData);
+                setResults(plotResults);
+
+                // attributes
                 setBoxes([
                     // rectangle(xy1, xy2, deg0)
                     rectangle([-0.5, 0], [0.5 + 0.5, y0]),  // left box 
                     rectangle([xfinal - 0.5, 0], [xfinal + 0.5, yfinal]),  // right box
                 ]);
 
+                // limits
                 setXlim([-0.5, xfinal]);
                 setYlim([0.5, null]);
                 break;
@@ -78,7 +100,10 @@ export default function Projectiles() {
                 var { y0 } = launchConfig;
                 var { xfinal, yfinal, degf } = targetConfig;
 
-                setPlotData(TargetAngle(y0, xfinal, yfinal, degf));
+                var [pointData, plotResults] = TargetAngle(y0, xfinal, yfinal, degf);
+                setPlotData(pointData);
+                setResults(plotResults);
+
                 setBoxes([
                     // rectangle(xy1, xy2, angle)
                     rectangle([-0.5, 0], [0.5 + 0.5, y0]),  // left box 
@@ -94,7 +119,10 @@ export default function Projectiles() {
                 var { y0 } = launchConfig;
                 var { xfinal, yfinal, ymax } = targetConfig;
 
-                setPlotData(MaxCeiling(y0, xfinal, yfinal, ymax));
+                var [pointData, plotResults] = MaxCeiling(y0, xfinal, yfinal, ymax);
+                setPlotData(pointData);
+                setResults(plotResults);
+
                 setBoxes([
                     // rectangle(xy1, xy2, angle)
                     rectangle([-0.5, 0], [0.5 + 0.5, y0]),  // left box 
@@ -112,9 +140,6 @@ export default function Projectiles() {
     function handleClick(evt) {
         // unpack name to get mode
         setActiveMode(evt.target.name);
-
-        // update plot
-        getData();
     };
 
     // handles the slider value update
@@ -145,7 +170,7 @@ export default function Projectiles() {
         // https://stackoverflow.com/a/41278440/3382269
         // https://stackoverflow.com/a/56394177/3382269
         getData();
-    }, [launchConfig, targetConfig]);
+    }, [launchConfig, targetConfig, activeMode]);
 
     return (
         <>
@@ -162,29 +187,60 @@ export default function Projectiles() {
             </ShadowBox>
 
             <ShadowBox>
+                <div className="border rounded">
+                    <label className='flex p-2 font-bold uppercase border-b'>
+                        Results
+                    </label>
+                    <div className='p-2 font-mono text-sm'>
+                        {results.eqn}
+                    </div>
+                    <div className="p-2 bg-slate-100 font-mono text-sm">
+                        <div className="grid grid-cols-3 gap-2">
+                            <div className="grid grid-rows-3">
+                                <ResultsItem result={results.y0} roundTo={3} units={'m'} label={'Launch Height'} />
+                                <ResultsItem result={results.v0} roundTo={3} units={'m/s'} label={'Launch Velocity'} />
+                                <ResultsItem result={results.deg0} roundTo={3} units={'(deg)'} label={'Launch Angle'} />
+                            </div>
+
+                            <div className="grid grid-rows-3">
+                                <ResultsItem result={results.tfinal} roundTo={3} units={'s'} label={'Flight Time'} />
+                                <ResultsItem result={results.ymax} roundTo={3} units={'m'} label={'Max Height'} />
+                            </div>
+
+                            <div className="grid grid-rows-3">
+                                <ResultsItem result={results.yfinal} roundTo={3} units={'m'} label={'Target Height'} />
+                                <ResultsItem result={results.xfinal} roundTo={3} units={'m'} label={'Target Velocity'} />
+                                <ResultsItem result={results.degf} roundTo={3} units={'(deg)'} label={'Target Angle'} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ShadowBox>
+
+            <ShadowBox>
                 <div className="grid grid-cols-4 gap-4">
 
                     <button
-                        className={`bg-white ${(activeMode == "projectile") ? "border-lime-400 border-2" : null} hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow`}
+                        className={`bg-white ${(activeMode == "projectile") ? "border-pink-400 border-2" : null} hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow`}
                         name="projectile"
                         onClick={(evt) => (handleClick(evt))}>
                         Projectile
                     </button>
 
                     <button
-                        className={`bg-white ${(activeMode == "cannon") ? "border-lime-400 border-2" : null} hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow`}
+                        className={`bg-white ${(activeMode == "cannon") ? "border-pink-400 border-2" : null} hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow`}
                         name="cannon"
                         onClick={(evt) => (handleClick(evt))}>
                         Cannon
                     </button>
                     <button
-                        className={`bg-white ${(activeMode == "target") ? "border-lime-400 border-2" : null} hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow`}
+                        className={`bg-white ${(activeMode == "target") ? "border-pink-400 border-2" : null} hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow`}
                         name="target"
                         onClick={(evt) => (handleClick(evt))}>
                         Known Target
                     </button>
                     <button
-                        className={`bg-white ${(activeMode == "ceiling") ? "border-lime-400 border-2" : null} hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow`}
+                        className={`bg-white ${(activeMode == "ceiling") ? "border-pink-400 border-2" : null} hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow`}
                         name="ceiling"
                         onClick={(evt) => (handleClick(evt))}>
                         Max Ceiling
@@ -194,7 +250,7 @@ export default function Projectiles() {
                 <div className="grid grid-cols-3 gap-2 m-4">
                     <div className="border rounded">
                         <label className='flex p-2 font-bold uppercase border-b'>Launch</label>
-                        <div className="px-2 py-4 grid grid-rows-3 gap-4 bg-gray-100">
+                        <div className="px-2 py-4 grid grid-rows-3 gap-4 bg-slate-100">
                             <div>
                                 {/* active for all modes */}
                                 <label className="font-bold text-cyan-800">Height</label>
@@ -219,7 +275,7 @@ export default function Projectiles() {
                                     max={25}
                                     step={5}
                                     defaultValue={launchConfig.v0}
-                                    disabled={!(['projectile'].includes(activeMode))} />
+                                    disabled={!(['projectile', 'cannon'].includes(activeMode))} />
                             </div>
                             <div>
                                 {/* active for modes: [projectile, cannon] */}
@@ -232,7 +288,7 @@ export default function Projectiles() {
                                     max={75}
                                     step={15}
                                     defaultValue={launchConfig.deg0}
-                                    disabled={!(['projectile', 'cannon'].includes(activeMode))} />
+                                    disabled={!(['projectile'].includes(activeMode))} />
 
                             </div>
                         </div>
@@ -240,7 +296,7 @@ export default function Projectiles() {
 
                     <div className="border rounded">
                         <label className='flex p-2 font-bold uppercase border-b'>Path</label>
-                        <div className="px-2 py-4 grid grid-rows-3 gap-4 bg-gray-100">
+                        <div className="px-2 py-4 grid grid-rows-3 gap-4 bg-slate-100">
                             <div>
                                 {/* active for modes: [ceiling] */}
                                 <label className="font-bold text-cyan-800">Ceiling</label>
@@ -249,7 +305,7 @@ export default function Projectiles() {
                                     id={'target-ymax'}
                                     type="range"
                                     min={5}
-                                    max={15}
+                                    max={25}
                                     step={5}
                                     defaultValue={targetConfig.ymax}
                                     disabled={!(['ceiling'].includes(activeMode))} />
@@ -259,7 +315,7 @@ export default function Projectiles() {
 
                     <div className="border rounded">
                         <label className='flex p-2 font-bold uppercase border-b'>Target</label>
-                        <div className="px-2 py-4 grid grid-rows-3 gap-4 bg-gray-100">
+                        <div className="px-2 py-4 grid grid-rows-3 gap-4 bg-slate-100">
                             <div>
                                 {/* active for modes: [cannon, target, ceiling] */}
                                 <label className="font-bold text-cyan-800">Height</label>
@@ -305,6 +361,16 @@ export default function Projectiles() {
                 </div>
             </ShadowBox>
         </>
+    )
+};
+
+function ResultsItem(props) {
+    const { result, roundTo, units, label } = props;
+    return (
+        <div className="flex items-center">
+            <label className="pr-2">{`${label}:`}</label>
+            <div>{result ? `${round(result, roundTo)} ${units}` : '--'}</div>
+        </div>
     )
 };
 
