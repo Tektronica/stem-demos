@@ -221,26 +221,26 @@ export default function Projectiles() {
                 <div className="grid grid-cols-4 gap-4">
 
                     <button
-                        className={`bg-white ${(activeMode == "projectile") ? "border-pink-400 border-2" : null} hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow`}
+                        className={`py-2 px-4 bg-white border ${(activeMode == "projectile") ? "border-pink-400 border-2" : "border-gray-400"} rounded hover:bg-gray-100 text-gray-800 font-semibold shadow`}
                         name="projectile"
                         onClick={(evt) => (handleClick(evt))}>
                         Projectile
                     </button>
 
                     <button
-                        className={`bg-white ${(activeMode == "cannon") ? "border-pink-400 border-2" : null} hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow`}
+                        className={`py-2 px-4 bg-white border ${(activeMode == "cannon") ? "border-pink-400 border-2" : "border-gray-400"} rounded hover:bg-gray-100 text-gray-800 font-semibold shadow`}
                         name="cannon"
                         onClick={(evt) => (handleClick(evt))}>
                         Cannon
                     </button>
                     <button
-                        className={`bg-white ${(activeMode == "target") ? "border-pink-400 border-2" : null} hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow`}
+                        className={`py-2 px-4 bg-white border ${(activeMode == "target") ? "border-pink-400 border-2" : "border-gray-400"} rounded hover:bg-gray-100 text-gray-800 font-semibold shadow`}
                         name="target"
                         onClick={(evt) => (handleClick(evt))}>
                         Known Target
                     </button>
                     <button
-                        className={`bg-white ${(activeMode == "ceiling") ? "border-pink-400 border-2" : null} hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow`}
+                        className={`py-2 px-4 bg-white border ${(activeMode == "ceiling") ? "border-pink-400 border-2" : "border-gray-400"} rounded hover:bg-gray-100 text-gray-800 font-semibold shadow`}
                         name="ceiling"
                         onClick={(evt) => (handleClick(evt))}>
                         Max Ceiling
@@ -368,7 +368,7 @@ function ResultsItem(props) {
     const { result, roundTo, units, label } = props;
     return (
         <div className="flex items-center">
-            <label className="pr-2">{`${label}:`}</label>
+            <label className="pr-2 text-cyan-800">{`${label}:`}</label>
             <div>{result ? `${round(result, roundTo)} ${units}` : '--'}</div>
         </div>
     )
@@ -383,11 +383,14 @@ function RangeSlider(props) {
     // Return evenly spaced values within a given interval
     const ticks = arange(min, (max + step), step);  // include endpoint
 
+    // tailwindcss does not recommend dynamic class names because of purging.
+    // Safelisting is an option, but should be handled as a last resort...
+    // https://tailwindcss.com/docs/content-configuration#safelisting-classes
     return (
-        <div className="flex flex-col space-y-2 p-2">
+        <div className={`flex flex-col space-y-2 p-2 ${!disabled ? "border border-2 border-pink-300 rounded" : null}`}>
             <input
                 className="w-full h-2 rounded-lg cursor-pointer accent-pink-200"
-                onChange={(evt) => onChange(evt, 'LaunchAngle')}
+                onChange={(evt) => onChange(evt)}
                 id={id}
                 type={type}
                 min={min}
@@ -396,22 +399,19 @@ function RangeSlider(props) {
                 defaultValue={defaultValue}
                 disabled={disabled}
             />
-            <ul className="flex justify-between w-full px-[10px] pb-2">
-                {ticks.map((tick, idx) => (
-                    <li key={`mark_${tick}_${idx}`} className="flex justify-center relative">
-                        <span className="absolute">╵</span>
-                    </li>
-                ))
-                }
-            </ul>
-            <ul className="flex justify-between w-full px-[10px]">
-                {ticks.map((tick, idx) => (
-                    <li key={`label_${tick}_${idx}`} className="flex justify-center relative">
-                        <span className="absolute">{tick}</span>
-                    </li>
-                ))
-                }
-            </ul>
+            <div>
+                <ul className="flex justify-between w-full">
+                    {ticks.map((tick, idx) => (
+                        <li key={`mark_${tick}_${idx}`} className="flex justify-center">
+                            <div className='grid grid-cols-1'>
+                                {/* <span className="flex justify-center">╵</span> */}
+                                <span className="flex justify-center">{tick}</span>
+                            </div>
+                        </li>
+                    ))
+                    }
+                </ul>
+            </div>
         </div>
     )
 };
