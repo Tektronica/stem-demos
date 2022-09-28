@@ -97,7 +97,7 @@ export function divide(x1, x2) {
     }
 };
 
-export function round(arr, decimals = 1) {
+export function round(arr, decimals = 0) {
     // returns rounded value for each list item 
     if (typeof arr === 'object') {
         return arr.map(a => round(a, decimals));
@@ -208,12 +208,12 @@ export function less_equal(x1, x2) {
 export function where(condition, x, y) {
     // Return elements chosen from x or y depending on condition.
 
-    const func = (condition) => (condition ? x : y)
+    const func = (condition, x, y) => (condition ? x : y)
 
     if (Array.isArray(condition[0])) {
-        return condition.map((a) => where(a, x, y));
+        return condition.map((a, idx) => where(a, x[idx], y[idx]));
     } else {
-        return condition.map((a) => func(a));
+        return condition.map((a, idx) => func(a, x[idx], y[idx]));
     }
 };
 
@@ -267,6 +267,25 @@ export function full(shape, value = undefined) {
     // returns a n-dimensional array of some value - else undefined
     // shape is a dimensional list [ row, col, stack, ... ]
     return NDimArray(shape, value)
+};
+
+export function repeat(a, repeats, axis = undefined) {
+    // repeat elements of an array
+    return (a.flatMap((v, i) => Array(repeats[i]).fill(v))).flat();
+};
+
+export function rand(dimensions) {
+    // Uniformly distributed random numbers
+
+    if (dimensions.length > 0) {
+        var dim = dimensions[0];
+        var rest = dimensions.slice(1);
+        var current = [...Array(dim)].map(() => (Math.random()));
+        return current.map(() => rand(rest));
+
+    } else {
+        return Math.random();
+    };
 };
 
 export function fftfreq(n, d = 1.0) {

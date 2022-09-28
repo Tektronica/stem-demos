@@ -289,7 +289,6 @@ export default function Projectiles() {
                                     step={15}
                                     defaultValue={launchConfig.deg0}
                                     disabled={!(['projectile'].includes(activeMode))} />
-
                             </div>
                         </div>
                     </div>
