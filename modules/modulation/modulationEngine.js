@@ -1,6 +1,5 @@
-import { blackman, bartlett, hanning, hamming, rectangular } from "../dsp/windowing";
-import { getWindowLength, windowed_fft, THD, THDN_F, THDN_R } from "../dsp/dsp";
-import { arange, round, zeros } from "../base";
+import { getWindowLength, windowed_fft } from "../dsp/dsp";
+import { round, zeros } from "../base";
 import { Waveform } from "./waveform";
 
 const WINDOW_FUNC = 'blackman'
@@ -25,42 +24,42 @@ message config uses:
     message_phase
 */
 
+function getTimeBase(fm, fs, main_lobe_error) {
+    // return time base determined by modulation frequency
+    if (fm != 0) {
+        return getWindowLength({ f0: fm, fs: fs, windfunc: WINDOW_FUNC, error: main_lobe_error });
+    } else if (fm == 0) {
+        const ldf = fc / 10;  // lowest detectable frequency
+        return getWindowLength({ f0: ldf, fs: fs, windfunc: WINDOW_FUNC, error: main_lobe_error });
+    } else {
+        console.log("Carrier frequency must be non-zero!");
+        return undefined;
+    };
+};
+
+
 function signal(config) {
     const {
         fs,
-        main_lobe_error,
+        N,
         modulation_type,
         waveform_type,
         Ac,
         fc,
         modulation_index,
         fm,
-        message_phase,
     } = config;
 
     var ct = null;  // carrier signal
     var st = null;  // final modulated signal
     var bw = null;  // bandwidth of the signal
 
-    // get time base
-    const N = getTimeBase(fm, fs, main_lobe_error);
-
     // x values
     const runtime = N / fs;
-    const xt = (arange(0, N, 1)).map((v) => (v / fs));
 
-    // message array
-    const msgConfig = {
-        N: N,
-        xt: xt,
-        fs: fs,
-        waveform_type: waveform_type,
-        fm: fm,
-        message_phase: message_phase,
-    };
-
-    const msg = Waveform(msgConfig);
-    const mt = msg.message;
+    const msg = Waveform({ ...config, N: N });
+    const xt = msg.x;
+    const mt = msg.y;
     const mt_ = msg.integral;
 
     const T = fs / fm;
@@ -115,18 +114,6 @@ function signal(config) {
     };
 };
 
-function getTimeBase(fm, fs, main_lobe_error) {
-    // return time base determined by modulation frequency
-    if (fm != 0) {
-        return getWindowLength({ f0: fm, fs: fs, windfunc: WINDOW_FUNC, error: main_lobe_error });
-    } else if (fm == 0) {
-        const ldf = fc / 10;  // lowest detectable frequency
-        return getWindowLength({ f0: ldf, fs: fs, windfunc: WINDOW_FUNC, error: main_lobe_error });
-    } else {
-        console.log("Carrier frequency must be non-zero!");
-        return undefined;
-    };
-};
 
 function transformAsPoints(x, y, slice = undefined) {
     // convert to pointData rather than datasets x=[...] and y=[...]
@@ -148,6 +135,7 @@ function transformAsPoints(x, y, slice = undefined) {
     return points;
 };
 
+
 function getFreqLimits(fc, fm, fs, N, bw, fft_length) {
     var [xf_left, xf_right] = [null, null];
 
@@ -167,19 +155,19 @@ function getFreqLimits(fc, fm, fs, N, bw, fft_length) {
     return [xf_left, xf_right];
 };
 
+
 function getModulation(config) {
     // unpack config
     const { fc, fm, fs, main_lobe_error } = config;
 
     // temporal ----------------------------------------------------
-    const time = signal(config);
     const N = getTimeBase(fm, fs, main_lobe_error);
     const runtime = N / fs;
+    const time = signal({ ...config, N: N });
 
     // find time slice index to plot up to 4 periods of modulation
     const periods = 4;
     const slice = round(periods * (N / fm));
-
     const timePoints = transformAsPoints(time.xt, time.st, slice);
 
     // spectral ----------------------------------------------------
@@ -187,6 +175,7 @@ function getModulation(config) {
 
     // find spectral slice index   
     const xflim = getFreqLimits(fc, fm, fs, N, time.bw, freq.fft_length);
+
     // frequency bin for FFT depends only on duration of the signal input
     // https://dsp.stackexchange.com/a/48220
     const df = fs / N;
@@ -210,5 +199,6 @@ function getModulation(config) {
         },
     };
 };
+
 
 export { getModulation };
