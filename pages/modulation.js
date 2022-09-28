@@ -5,8 +5,7 @@ import Layout from "../components/layout";
 import ShadowBox from "../components/containers/ShadowBox";
 
 // custom chart component import
-import TimePlot from "../components/charts/TimePlot";
-import SpectrumPlot from "../components/charts/SpectrumPlot";
+import LinePlot from "../components/charts/LinePlot";
 
 // custom math module imports
 
@@ -154,6 +153,29 @@ export default function Modulation() {
             </ShadowBox>
 
             <ShadowBox>
+                <div>
+                    <LinePlot
+                        pointData={timePlot.datasets}
+                        // box={boxes}
+                        xlim={timePlot.xlim}
+                        ylim={timePlot.ylim}
+                        height={300}
+                    // title='Sampled Time Series Data'
+                    />
+
+                    <LinePlot
+                        pointData={freqPlot.datasets}
+                        // box={boxes}
+                        xlim={freqPlot.xlim}
+                        ylim={freqPlot.ylim}
+                        height={300}
+                    // color='rgba(162,20,47,1)'
+                    // title='Spectral Data'
+                    />
+                </div>
+            </ShadowBox>
+
+            <ShadowBox>
                 <div className="grid grid-cols-1 gap-2">
 
                     <div className="grid grid-cols-2 gap-2">
@@ -289,27 +311,6 @@ export default function Modulation() {
                             </div>
                         </div>
                     </div>
-                </div>
-            </ShadowBox>
-
-            <ShadowBox>
-                <div>
-                    <TimePlot
-                        pointData={timePlot.datasets}
-                        // box={boxes}
-                        xlim={timePlot.xlim}
-                        ylim={timePlot.ylim}
-                    // title='Sampled Time Series Data'
-                    />
-
-                    <TimePlot
-                        pointData={freqPlot.datasets}
-                        // box={boxes}
-                        xlim={freqPlot.xlim}
-                        ylim={freqPlot.ylim}
-                    // color='rgba(162,20,47,1)'
-                    // title='Spectral Data'
-                    />
                 </div>
             </ShadowBox>
         </>

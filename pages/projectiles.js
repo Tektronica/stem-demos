@@ -5,7 +5,7 @@ import Layout from "../components/layout";
 import ShadowBox from "../components/containers/ShadowBox";
 
 // custom chart component import
-import TimePlot from "../components/charts/TimePlot";
+import LinePlot from "../components/charts/LinePlot";
 
 // custom math module imports
 import {
@@ -29,8 +29,7 @@ export default function Projectiles() {
         xlim: [null, null],
         ylim: [null, null]
     });
-    const [xlim, setXlim] = useState([null, null]);
-    const [ylim, setYlim] = useState([null, null]);
+
     const [boxes, setBoxes] = useState(null);
 
     // range sliders
@@ -213,11 +212,12 @@ export default function Projectiles() {
                 <h1 className="text-3xl font-bold">
                     Projectile Demos
                 </h1>
-                <TimePlot
+                <LinePlot
                     pointData={plotData.datasets}
                     box={boxes}
                     xlim={plotData.xlim}
                     ylim={plotData.ylim}
+                    height={300}
                 // title='Projectile Demo'
                 />
             </ShadowBox>

@@ -1,10 +1,11 @@
 import React, { useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
 import annotationPlugin from 'chartjs-plugin-annotation';
+import { SERVER_PROPS_ID } from "next/dist/shared/lib/constants";
 
 Chart.register(annotationPlugin);
 
-const TimePlot = ({ pointData, box, xlim, ylim, title }) => {
+const LinePlot = (props) => {
 
     // https://stackoverflow.com/questions/70684106/react-chartjs-2-typeerror-undefined-is-not-an-object-evaluating-nextdatasets
     // https://www.learnnext.blog/blogs/using-chartjs-in-your-nextjs-application
@@ -18,8 +19,7 @@ const TimePlot = ({ pointData, box, xlim, ylim, title }) => {
     // https://stackoverflow.com/a/70134348/3382269
     // https://www.chartjs.org/chartjs-plugin-annotation/latest/guide/integration.html
 
-    // data is a list of point objects
-
+    const { pointData, box, xlim, ylim, title, height = null } = props;
     const canvasRef = useRef(null);
     const chartRef = useRef(null);
 
@@ -36,8 +36,8 @@ const TimePlot = ({ pointData, box, xlim, ylim, title }) => {
         if (!canvasRef.current) return;
 
         const chartToDraw = canvasRef.current.getContext("2d");
-        // const chartToDraw = document.getElementById("myChart");
 
+        // data is a list of point objects
         const data = {
             datasets: [
                 {
@@ -183,7 +183,7 @@ const TimePlot = ({ pointData, box, xlim, ylim, title }) => {
 
 
     return (
-        <div className="h-[300px]">
+        <div style={{height: (height ? height : 300)}}>
             <canvas
                 id="myChart"
                 ref={canvasRef}
@@ -192,4 +192,4 @@ const TimePlot = ({ pointData, box, xlim, ylim, title }) => {
     )
 };
 
-export default TimePlot;
+export default LinePlot;
