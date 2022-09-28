@@ -271,7 +271,7 @@ export function full(shape, value = undefined) {
 
 export function repeat(a, repeats, axis = undefined) {
     // repeat elements of an array
-    return (a.flatMap((v, i) => Array(repeats[i]).fill(v))).flat();
+    return (a.flatMap((v, i) => Array(repeats).fill(v))).flat();
 };
 
 export function rand(dimensions) {
@@ -345,4 +345,14 @@ export function deg2rad(deg) {
 
 export function rad2deg(rad) {
     return 180 * rad / Math.PI;
+};
+
+export function mod(a, b) {
+    // computes the remainder complementary to the floor_divide function.
+    var m = a % b;
+    if (m < 0) {
+        // m += (b < 0) ? -b : b; // avoid this form: it is UB when b == INT_MIN
+        m = (b < 0) ? m - b : m + b;
+    }
+    return m;
 };

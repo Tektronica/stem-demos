@@ -29,7 +29,7 @@ export default function Modulation() {
 
     // chart data arranged as point
     const [timePlot, setTimePlot] = useState({
-        data: [{ 'x': null, 'y': null }],
+        datasets: [{ 'x': null, 'y': null }],
         xlim: [null, null],
         ylim: [null, null]
     });
@@ -54,12 +54,23 @@ export default function Modulation() {
         });
 
         setTimePlot({
-            data: plots.time.data,
+            datasets: [
+                {
+                    data: plots.time.data,
+                    label: 'Modulated Signal',
+                    color: 'rgba(75,192,192,1)',
+                    dashed: false
+                },
+                {
+                    data: plots.time.message,
+                    label: 'Message',
+                    color: 'rgba(244,114,182,1)',
+                    dashed: true
+                }],
             xlim: [null, null],
             ylim: [null, null]
         });
 
-        const freq = getModulation(config);
         setFreqPlot({
             data: plots.spectral.data,
             xlim: plots.spectral.xlim,
@@ -67,10 +78,6 @@ export default function Modulation() {
             ylim: [null, null]
         });
     };
-
-    // useEffect(() => {
-    //     getData();
-    // }, []);
 
     // handles the slider value update
     function handleSlider(evt, newVal) {
@@ -226,7 +233,7 @@ export default function Modulation() {
             <ShadowBox>
                 <div>
                     <TimePlot
-                        pointData={timePlot.data}
+                        pointData={timePlot.datasets}
                         // box={boxes}
                         xlim={timePlot.xlim}
                         ylim={timePlot.ylim}

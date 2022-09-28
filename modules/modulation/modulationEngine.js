@@ -169,6 +169,7 @@ function getModulation(config) {
     const periods = 4;
     const slice = round(periods * (fs / fm));
     const timePoints = transformAsPoints(time.xt, time.st, slice);
+    const msgPoints = transformAsPoints(time.xt, time.mt, slice);
 
     // spectral ----------------------------------------------------
     const freq = windowed_fft(time.st, time.xt, WINDOW_FUNC);
@@ -185,7 +186,7 @@ function getModulation(config) {
     return {
         time: {
             data: timePoints,
-            mt: time.mt,
+            message: msgPoints,
             bw: time.bw,
             N: N,
             runtime: runtime,

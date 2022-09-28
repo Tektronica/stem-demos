@@ -1,5 +1,5 @@
 // custom math module imports
-import { deg2rad, arange, round, repeat, where, rand } from "../base";
+import { deg2rad, arange, round, repeat, where, rand, mod, ones, zeros } from "../base";
 
 
 function Sine(fc, fs, N, phase) {
@@ -27,7 +27,7 @@ function Triangle(fc, fs, N, phase) {
     // message signal (modulo operation)
     const N_phase_shifted = N_range.map(N => (N + round(T * phase / 360)));
 
-    const yt = N_phase_shifted.map(N => ((4 / T) * Math.abs(((N - T / 4) % T) - T / 2) - 1));
+    const yt = N_phase_shifted.map(N => ((4 / T) * Math.abs((mod((N - T / 4), T)) - T / 2) - 1));
 
     // integral of triangle
     const integral_shift = N_phase_shifted.map(N => (N + T / 4));
@@ -80,12 +80,14 @@ function Square(fc, fs, N, phase) {
 
     // message signal
     const cond = N_phase_shifted.map(N => ((N % T) < T / 2));
-    var yt = where(cond, 1, 0);
+    var ifTrue = ones([N])
+    var ifFalse = zeros([N])
+    var yt = where(cond, ifTrue, ifFalse);
 
     // integral of message signal (square wave integral is a triangle wave (modulo operation) with 180 phase lag)
     const scaling = 1 / fs;
-    const ifTrue = N_phase_shifted.map(N => (N % T));
-    const ifFalse = ifTrue.map(c => -c);
+    ifTrue = N_phase_shifted.map(N => (N % T));
+    ifFalse = ifTrue.map(c => -c);
     var yt_ = where(cond, ifTrue, ifFalse);
     yt_ = yt_.map(yt_ => (scaling * yt_));
 
@@ -106,8 +108,10 @@ function Keying(fc, fs, N, phase) {
 
     const T = fs / fc;
 
-    const binary_message = rand([1, round(N / T)])[0];
-    var yt = repeat([binary_message], [T]).slice(0, N);
+    var binary_message = rand([1, round(N / T)])[0];
+    binary_message = binary_message.map((b) => (b < 0.5 ? 0 : 1));
+
+    var yt = repeat(binary_message, T).slice(0, N);
 
     // frequency term is converted to an angle. Since discrete steps, there are only f_low (0) and f_high (1)
     const yt_ = yt.map((yt, idx) => ((2 * yt - 1) * xt[idx]));

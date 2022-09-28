@@ -111,7 +111,33 @@ const TimePlot = ({ pointData, box, xlim, ylim, title }) => {
         // https://github.com/chartjs/Chart.js/blob/master/docs/samples/animations/loop.md
         // https://codepen.io/webgeeker/pen/jKBqge
 
-        chartRef.current.data.datasets[0].data = pointData;
+        if (pointData.length == 0) {
+            chartRef.current.data.datasets[0].data = pointData;
+
+        } else {
+            var newDatasets = [];
+
+            pointData.forEach(function ({ data, color, label, dashed = [] }) {
+
+                const dataset =
+                {
+                    data: data,
+                    indexAxis: 'x',
+                    showLine: true,
+                    label: label,
+                    lineTension: 0.1,
+                    borderColor: color,
+                    backgroundColor: color,
+                    pointRadius: 0,
+                    borderDash: dashed ? [5, 5] : [],
+                }
+
+                // append to beginning (temporary solution??)
+                newDatasets.unshift(dataset);
+            });
+
+            chartRef.current.data.datasets = newDatasets
+        };
         chartRef.current.update();
 
     }, [pointData]);
