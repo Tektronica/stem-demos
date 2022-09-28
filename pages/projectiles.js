@@ -24,7 +24,11 @@ var timerID = null;
 export default function Projectiles() {
 
     // const plotData01 = Projectile(launch_height, launch_velocity, launch_angle);
-    const [plotData, setPlotData] = useState([{ 'x': null, 'y': null }]);
+    const [plotData, setPlotData] = useState({
+        datasets: [{ 'x': null, 'y': null }],
+        xlim: [null, null],
+        ylim: [null, null]
+    });
     const [xlim, setXlim] = useState([null, null]);
     const [ylim, setYlim] = useState([null, null]);
     const [boxes, setBoxes] = useState(null);
@@ -60,8 +64,6 @@ export default function Projectiles() {
                 // myfunc();
 
                 var [pointData, plotResults] = Projectile(y0, v0, deg0);
-                setPlotData(pointData);
-                setResults(plotResults);
 
                 // attributes
                 setBoxes([
@@ -69,19 +71,27 @@ export default function Projectiles() {
                     rectangle([-0.5, 0], [0.5 + 0.5, y0]),  // left box 
                 ]);
 
-                // limits
-                setXlim([0, null]);
-                setYlim([0, null]);
+                setPlotData({
+                    datasets: [
+                        {
+                            data: pointData,
+                            label: 'projectile',
+                            color: 'rgba(75,192,192,1)',
+                            dashed: false
+                        },
+                    ],
+                    xlim: [0, null],
+                    ylim: [0, null]
+                });
+
                 break;
 
             case 'cannon':
                 // cannon
                 var { y0, v0 } = launchConfig;
                 var { xfinal, yfinal } = targetConfig;
-
                 var [pointData, plotResults] = Cannon(y0, v0, xfinal, yfinal);
-                setPlotData(pointData);
-                setResults(plotResults);
+
 
                 // attributes
                 setBoxes([
@@ -90,19 +100,25 @@ export default function Projectiles() {
                     rectangle([xfinal - 0.5, 0], [xfinal + 0.5, yfinal]),  // right box
                 ]);
 
-                // limits
-                setXlim([-0.5, xfinal]);
-                setYlim([0.5, null]);
+                setPlotData({
+                    datasets: [
+                        {
+                            data: pointData,
+                            label: 'projectile',
+                            color: 'rgba(75,192,192,1)',
+                            dashed: false
+                        },
+                    ],
+                    xlim: [-0.5, xfinal],
+                    ylim: [0.5, null]
+                });
                 break;
 
             case 'target':
                 // target
                 var { y0 } = launchConfig;
                 var { xfinal, yfinal, degf } = targetConfig;
-
                 var [pointData, plotResults] = TargetAngle(y0, xfinal, yfinal, degf);
-                setPlotData(pointData);
-                setResults(plotResults);
 
                 setBoxes([
                     // rectangle(xy1, xy2, angle)
@@ -110,18 +126,25 @@ export default function Projectiles() {
                     rectangle([xfinal - 0.5, 0], [xfinal + 0.5, yfinal]),  // right box
                 ]);
 
-                setXlim([-0.5, xfinal]);
-                setYlim([0, null]);
+                setPlotData({
+                    datasets: [
+                        {
+                            data: pointData,
+                            label: 'projectile',
+                            color: 'rgba(75,192,192,1)',
+                            dashed: false
+                        },
+                    ],
+                    xlim: [-0.5, xfinal],
+                    ylim: [0, null]
+                });
                 break;
 
             case 'ceiling':
                 // ceiling
                 var { y0 } = launchConfig;
                 var { xfinal, yfinal, ymax } = targetConfig;
-
                 var [pointData, plotResults] = MaxCeiling(y0, xfinal, yfinal, ymax);
-                setPlotData(pointData);
-                setResults(plotResults);
 
                 setBoxes([
                     // rectangle(xy1, xy2, angle)
@@ -130,10 +153,22 @@ export default function Projectiles() {
                     rectangle([-0.5 - 0.5, ymax], [xfinal + 0.5, ymax + 0.5]),  // ceiling box
                 ]);
 
-                setXlim([0, xfinal]);
-                setYlim([0, ymax + 0.4]);
+                setPlotData({
+                    datasets: [
+                        {
+                            data: pointData,
+                            label: 'projectile',
+                            color: 'rgba(75,192,192,1)',
+                            dashed: false
+                        },
+                    ],
+                    xlim: [0, xfinal],
+                    ylim: [0, ymax + 0.4]
+                });
                 break;
         }
+
+        setResults(plotResults);
     };
 
     // handles the button used to change mode
@@ -179,11 +214,12 @@ export default function Projectiles() {
                     Projectile Demos
                 </h1>
                 <TimePlot
-                    pointData={plotData}
+                    pointData={plotData.datasets}
                     box={boxes}
-                    xlim={xlim}
-                    ylim={ylim}
-                    title='Projectile Demo' />
+                    xlim={plotData.xlim}
+                    ylim={plotData.ylim}
+                // title='Projectile Demo'
+                />
             </ShadowBox>
 
             <ShadowBox>
