@@ -34,7 +34,7 @@ export default function Modulation() {
         ylim: [null, null]
     });
     const [freqPlot, setFreqPlot] = useState({
-        data: [{ 'x': null, 'y': null }],
+        datasets: [{ 'x': null, 'y': null }],
         xlim: [null, null],
         ylim: [null, null]
     });
@@ -72,9 +72,15 @@ export default function Modulation() {
         });
 
         setFreqPlot({
-            data: plots.spectral.data,
+            datasets: [
+                {
+                    data: plots.spectral.data,
+                    label: 'Spectral Data',
+                    color: 'rgba(162,20,47,1)',
+                    dashed: false
+                },
+            ],
             xlim: plots.spectral.xlim,
-            // xlim: [null, null],
             ylim: [null, null]
         });
     };
@@ -83,7 +89,7 @@ export default function Modulation() {
     function handleSlider(evt, newVal) {
         // unpack id to get classification
         const [category, type] = (evt.target.id).split('-');
-
+        console.log(type, newVal)
         // update state of category type
         // https://stackoverflow.com/a/46209368/3382269
         setConfig((current) => ({ ...current, [type]: newVal }));
@@ -148,85 +154,141 @@ export default function Modulation() {
             </ShadowBox>
 
             <ShadowBox>
-                <div>
-                    <label className="font-bold text-cyan-800">Sample Rate</label>
-                    <RangeSlider
-                        onChange={(evt) => handleSlider(evt, (1000 * evt.target.valueAsNumber))}
-                        id={'slider-fs'}
-                        type="range"
-                        min={50}
-                        max={100}
-                        step={10}
-                        defaultValue={(config.fs / 1000)}
-                    />
-                </div>
-                <div>
-                    <label className="font-bold text-cyan-800">Carrier Frequency</label>
-                    <RangeSlider
-                        onChange={(evt) => handleSlider(evt, (1000 * evt.target.valueAsNumber))}
-                        id={'slider-fc'}
-                        type="range"
-                        min={1}
-                        max={5}
-                        step={1}
-                        defaultValue={(config.fc / 1000)}
-                    />
-                </div>
-                <div>
-                    <label className="font-bold text-cyan-800">Modulation Frequency</label>
-                    <RangeSlider
-                        onChange={(evt) => handleSlider(evt, (evt.target.valueAsNumber))}
-                        id={'slider-fm'}
-                        type="range"
-                        min={100}
-                        max={500}
-                        step={100}
-                        defaultValue={(config.fm)}
-                    />
-                </div>
-                <div>
-                    <label className="font-bold text-cyan-800">Modulation Index</label>
-                    <RangeSlider
-                        onChange={(evt) => handleSlider(evt, (evt.target.valueAsNumber))}
-                        id={'slider-modulation_index'}
-                        type="range"
-                        min={2}
-                        max={8}
-                        step={1}
-                        defaultValue={(config.modulation_index)}
-                    />
-                </div>
-                <div>
-                    <label className="font-bold text-cyan-800">Modulation Phase</label>
-                    <RangeSlider
-                        onChange={(evt) => handleSlider(evt, (evt.target.valueAsNumber))}
-                        id={'slider-message_phase'}
-                        type="range"
-                        min={0}
-                        max={90}
-                        step={15}
-                        defaultValue={(config.message_phase)}
-                    />
-                </div>
-                <div>
-                    <label className="font-bold text-cyan-800">Modulation</label>
+                <div className="grid grid-cols-1 gap-2">
 
-                    <select name="cars" id="select-modulation_type" onChange={(evt) => handleSelect(evt)} defaultValue={(config.modulation_type)}>
-                        <option value="amplitude">Amplitude</option>
-                        <option value="frequency">Frequency</option>
-                        <option value="phase">Phase</option>
-                    </select>
-                </div>
-                <div>
-                    <label className="font-bold text-cyan-800">Modulation</label>
+                    <div className="grid grid-cols-2 gap-2">
+                        <div className="border rounded shadow">
+                            <div className="p-2 flex border-b bg-slate-100">
+                                <label className="font-bold text-cyan-800 uppercase">
+                                    Carrier Signal
+                                </label>
+                            </div>
+                            <div className="grid grid-cols-2 px-2">
+                                <div className='grid grid-cols-1 py-2'>
+                                    <label className="font-bold text-cyan-800">
+                                        Modulation Type
+                                    </label>
 
-                    <select name="cars" id="select-waveform_type" onChange={(evt) => handleSelect(evt)} defaultValue={(config.waveform_type)}>
-                        <option value="sine">Sine</option>
-                        <option value="triangle">Triangle</option>
-                        <option value="sawtooth">Sawtooth</option>
-                        <option value="square">Square</option>
-                        <option value="keying">Keying</option>
-                    </select>
+                                    <select name="cars" id="select-modulation_type" onChange={(evt) => handleSelect(evt)} defaultValue={(config.modulation_type)}>
+                                        <option value="amplitude">Amplitude</option>
+                                        <option value="frequency">Frequency</option>
+                                        <option value="phase">Phase</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="font-bold text-cyan-800">
+                                        Carrier Frequency
+                                    </label>
+                                    <RangeSlider
+                                        onChange={(evt) => handleSlider(evt, (evt.target.valueAsNumber * 1000))}
+                                        id={'slider-fc'}
+                                        type="range"
+                                        min={1}
+                                        max={5}
+                                        step={1}
+                                        defaultValue={(config.fc / 1000)}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="border rounded shadow">
+                            <div className="p-2 flex border-b bg-slate-100">
+                                <label className="font-bold text-cyan-800 uppercase">
+                                    Sampling
+                                </label>
+                            </div>
+                            <div className="grid grid-cols-2 px-2">
+                                <div>
+                                    <label className="font-bold text-cyan-800">Sample Rate</label>
+                                    <RangeSlider
+                                        onChange={(evt) => handleSlider(evt, (1000 * evt.target.valueAsNumber))}
+                                        id={'slider-fs'}
+                                        type="range"
+                                        min={50}
+                                        max={100}
+                                        step={10}
+                                        defaultValue={(config.fs / 1000)}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="font-bold text-cyan-800">Main Lobe Error (ppm)</label>
+                                    <RangeSlider
+                                        onChange={(evt) => handleSlider(evt, (evt.target.valueAsNumber / 1000))}
+                                        id={'slider-main_lobe_error'}
+                                        type="range"
+                                        min={40}
+                                        max={100}
+                                        step={20}
+                                        defaultValue={(config.main_lobe_error * 1000)}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="border rounded shadow">
+                        <div className="p-2 flex border-b bg-slate-100">
+                            <label className="font-bold text-cyan-800 uppercase">
+                                Modulating Signal
+                            </label>
+                        </div>
+                        <div className="grid grid-cols-4 px-2">
+
+                            <div className='grid grid-cols-1 py-2'>
+                                <label className="font-bold text-cyan-800">
+                                    Waveform
+                                </label>
+                                <select
+                                    name="cars"
+                                    id="select-waveform_type"
+                                    onChange={(evt) => handleSelect(evt)}
+                                    defaultValue={(config.waveform_type)}
+                                >
+                                    <option value="sine">Sine</option>
+                                    <option value="triangle">Triangle</option>
+                                    <option value="sawtooth">Sawtooth</option>
+                                    <option value="square">Square</option>
+                                    <option value="keying">Keying</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="font-bold text-cyan-800">Frequency</label>
+                                <RangeSlider
+                                    onChange={(evt) => handleSlider(evt, (evt.target.valueAsNumber))}
+                                    id={'slider-fm'}
+                                    type="range"
+                                    min={100}
+                                    max={500}
+                                    step={100}
+                                    defaultValue={(config.fm)}
+                                />
+                            </div>
+                            <div>
+                                <label className="font-bold text-cyan-800">Index</label>
+                                <RangeSlider
+                                    onChange={(evt) => handleSlider(evt, (evt.target.valueAsNumber))}
+                                    id={'slider-modulation_index'}
+                                    type="range"
+                                    min={2}
+                                    max={8}
+                                    step={1}
+                                    defaultValue={(config.modulation_index)}
+                                />
+                            </div>
+                            <div>
+                                <label className="font-bold text-cyan-800">Phase</label>
+                                <RangeSlider
+                                    onChange={(evt) => handleSlider(evt, (evt.target.valueAsNumber))}
+                                    id={'slider-message_phase'}
+                                    type="range"
+                                    min={0}
+                                    max={90}
+                                    step={15}
+                                    defaultValue={(config.message_phase)}
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </ShadowBox>
 
@@ -237,15 +299,17 @@ export default function Modulation() {
                         // box={boxes}
                         xlim={timePlot.xlim}
                         ylim={timePlot.ylim}
-                        title='Sampled Time Series Data' />
+                    // title='Sampled Time Series Data'
+                    />
 
-                    <SpectrumPlot
-                        pointData={freqPlot.data}
+                    <TimePlot
+                        pointData={freqPlot.datasets}
                         // box={boxes}
                         xlim={freqPlot.xlim}
                         ylim={freqPlot.ylim}
-                        color='rgba(162,20,47,1)'
-                        title='Spectral Data' />
+                    // color='rgba(162,20,47,1)'
+                    // title='Spectral Data'
+                    />
                 </div>
             </ShadowBox>
         </>

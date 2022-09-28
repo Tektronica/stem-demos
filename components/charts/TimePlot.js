@@ -58,6 +58,7 @@ const TimePlot = ({ pointData, box, xlim, ylim, title }) => {
 
         const options = {
             responsive: true,
+            maintainAspectRatio: false,
             events: [],
             animation: false,
 
@@ -182,15 +183,12 @@ const TimePlot = ({ pointData, box, xlim, ylim, title }) => {
 
 
     return (
-        <>
-            <div className=''>
-                <canvas
-                    id="myChart"
-                    ref={canvasRef}
-                />
-
-            </div>
-        </>
+        <div className="h-[300px]">
+            <canvas
+                id="myChart"
+                ref={canvasRef}
+            />
+        </div>
     )
 };
 
