@@ -142,7 +142,6 @@ export default function Modulation() {
 
             <ShadowBox>
                 <div>
-                    {/* active for modes: [projectile, cannon, target] */}
                     <label className="font-bold text-cyan-800">Sample Rate</label>
                     <RangeSlider
                         onChange={(evt) => handleSlider(evt, (1000 * evt.target.valueAsNumber))}
@@ -155,7 +154,6 @@ export default function Modulation() {
                     />
                 </div>
                 <div>
-                    {/* active for modes: [projectile, cannon, target] */}
                     <label className="font-bold text-cyan-800">Carrier Frequency</label>
                     <RangeSlider
                         onChange={(evt) => handleSlider(evt, (1000 * evt.target.valueAsNumber))}
@@ -168,7 +166,6 @@ export default function Modulation() {
                     />
                 </div>
                 <div>
-                    {/* active for modes: [projectile, cannon, target] */}
                     <label className="font-bold text-cyan-800">Modulation Frequency</label>
                     <RangeSlider
                         onChange={(evt) => handleSlider(evt, (evt.target.valueAsNumber))}
@@ -181,8 +178,7 @@ export default function Modulation() {
                     />
                 </div>
                 <div>
-                    {/* active for modes: [projectile, cannon, target] */}
-                    <label className="font-bold text-cyan-800">Modulation Frequency</label>
+                    <label className="font-bold text-cyan-800">Modulation Index</label>
                     <RangeSlider
                         onChange={(evt) => handleSlider(evt, (evt.target.valueAsNumber))}
                         id={'slider-modulation_index'}
@@ -194,7 +190,6 @@ export default function Modulation() {
                     />
                 </div>
                 <div>
-                    {/* active for modes: [projectile, cannon, target] */}
                     <label className="font-bold text-cyan-800">Modulation Phase</label>
                     <RangeSlider
                         onChange={(evt) => handleSlider(evt, (evt.target.valueAsNumber))}

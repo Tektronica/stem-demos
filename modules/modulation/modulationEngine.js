@@ -167,7 +167,7 @@ function getModulation(config) {
 
     // find time slice index to plot up to 4 periods of modulation
     const periods = 4;
-    const slice = round(periods * (N / fm));
+    const slice = round(periods * (fs / fm));
     const timePoints = transformAsPoints(time.xt, time.st, slice);
 
     // spectral ----------------------------------------------------
