@@ -38,6 +38,8 @@ export default function Modulation() {
         ylim: [null, null]
     });
 
+    const [dimension, setDimension] = useState(null);
+
     function getData() {
         const plots = getModulation(config);
         setResults({
@@ -80,8 +82,16 @@ export default function Modulation() {
                 },
             ],
             xlim: plots.spectral.xlim,
-            ylim: [null, null]
+            ylim: [-0.1, null]
         });
+
+
+        setDimension({
+            label: `BW = ${plots.time.bw} Hz`,
+            xMin: (config.fc - plots.time.bw / 2) / 1000,
+            xMax: (config.fc + plots.time.bw / 2) / 1000,
+            y: -0.05
+        })
     };
 
     // handles the slider value update
@@ -169,6 +179,7 @@ export default function Modulation() {
                         xlim={freqPlot.xlim}
                         ylim={freqPlot.ylim}
                         height={300}
+                        dimension={dimension}
                     // color='rgba(162,20,47,1)'
                     // title='Spectral Data'
                     />

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
 import annotationPlugin from 'chartjs-plugin-annotation';
-import { SERVER_PROPS_ID } from "next/dist/shared/lib/constants";
+import { addBoxes, addDimension } from './attributes'
 
 Chart.register(annotationPlugin);
 
@@ -19,7 +19,7 @@ const LinePlot = (props) => {
     // https://stackoverflow.com/a/70134348/3382269
     // https://www.chartjs.org/chartjs-plugin-annotation/latest/guide/integration.html
 
-    const { pointData, box, xlim, ylim, title, height = null } = props;
+    const { pointData, box, dimension, xlim, ylim, title, height = null } = props;
     const canvasRef = useRef(null);
     const chartRef = useRef(null);
 
@@ -146,25 +146,25 @@ const LinePlot = (props) => {
 
     // mutable access to update box attributes
     useEffect(() => {
-
-        const boxes = {}
         if (box) {
-            const k = box.map((b, idx) => (
-                boxes[`box${idx}`] = {
-                    type: 'box',
-                    xMin: b.p1[0],
-                    yMin: b.p1[1],
-                    xMax: b.p2[0],
-                    yMax: b.p2[1],
-                    backgroundColor: 'rgba(255, 99, 132, 0.25)'
-                }
-            ));
+            const boxes = addBoxes(box)
+
+            chartRef.current.options.plugins.annotation.annotations = boxes;
+            chartRef.current.update();
         };
 
-        chartRef.current.options.plugins.annotation.annotations = boxes;
-        chartRef.current.update();
-
     }, [box]);
+
+    // mutable access to update box attributes
+    useEffect(() => {
+        if (dimension) {
+            const dim = addDimension(dimension)
+
+            chartRef.current.options.plugins.annotation.annotations = dim;
+            chartRef.current.update();
+        };
+
+    }, [dimension]);
 
 
     // mutable access to update scale limits
@@ -183,7 +183,7 @@ const LinePlot = (props) => {
 
 
     return (
-        <div style={{height: (height ? height : 300)}}>
+        <div style={{ height: (height ? height : 300) }}>
             <canvas
                 id="myChart"
                 ref={canvasRef}
