@@ -2,15 +2,19 @@
 import { deg2rad, arange, round, repeat, where, rand, mod, ones, zeros } from "../base";
 
 
-function Sine(fc, fs, N, phase) {
+function Sine(fc, fs, N, Ac = 1, phase = 0, integral = false) {
     const N_range = arange(0, N, 1);
     const xt = N_range.map(N => (N / fs));
 
     // message signal
-    const yt = xt.map((x) => (Math.sin(2 * Math.PI * fc * x + deg2rad(phase))));
+    const yt = xt.map((x) => (Ac * Math.sin(2 * Math.PI * fc * x + deg2rad(phase))));
 
     // integral of message signal
-    const yt_ = xt.map((x) => ((1 / (Math.PI * fc)) * Math.sin(Math.PI * fc * x) * Math.sin(Math.PI * fc * x + phase)));
+    var yt_ = null;
+
+    if (integral) {
+        yt_ = xt.map((x) => ((1 / (Math.PI * fc)) * Math.sin(Math.PI * fc * x) * Math.sin(Math.PI * fc * x + phase)));
+    };
 
     return { x: xt, y: yt, integral: yt_ };
 };
@@ -125,10 +129,10 @@ function Keying(fc, fs, N, phase) {
 
 
 export function Waveform(config) {
-    const { waveform_type, N, fs, fm, message_phase } = config;
+    const { fc, fs, N, Ac = 1, type = 'sine', phase = 0, integral = false } = config;
 
     // a bit cleaner than a switch case
-    const waveFunc = (func) => func(fm, fs, N, message_phase);
+    const waveFunc = (func) => func(fc, fs, N, Ac, phase, integral);
     const waveforms = {
         'sine': Sine,
         'triangle': Triangle,
@@ -137,5 +141,5 @@ export function Waveform(config) {
         'keying': Keying
     };
 
-    return waveFunc(waveforms[waveform_type]);
+    return waveFunc(waveforms[type]);
 };

@@ -24,11 +24,11 @@ message config uses:
     message_phase
 */
 
-function getTimeBase(fm, fs, main_lobe_error) {
+function getTimeBase(fc, fs, main_lobe_error) {
     // return time base determined by modulation frequency
-    if (fm != 0) {
-        return getWindowLength({ f0: fm, fs: fs, windfunc: WINDOW_FUNC, error: main_lobe_error });
-    } else if (fm == 0) {
+    if (fc != 0) {
+        return getWindowLength({ f0: fc, fs: fs, windfunc: WINDOW_FUNC, error: main_lobe_error });
+    } else if (fc == 0) {
         const ldf = fc / 10;  // lowest detectable frequency
         return getWindowLength({ f0: ldf, fs: fs, windfunc: WINDOW_FUNC, error: main_lobe_error });
     } else {
@@ -37,17 +37,29 @@ function getTimeBase(fm, fs, main_lobe_error) {
     };
 };
 
+function getWaveform(config) {
+
+    return Waveform({
+        fc: config.fm,
+        fs: config.fs,
+        N: config.N,
+        type: config.waveform_type,
+        phase: config.message_phase,
+        integral: true
+    });
+};
+
 
 function signal(config) {
     const {
+        Ac,
+        fc,
+        fm,
         fs,
         N,
         modulation_type,
         waveform_type,
-        Ac,
-        fc,
         modulation_index,
-        fm,
     } = config;
 
     var ct = null;  // carrier signal
@@ -57,7 +69,7 @@ function signal(config) {
     // x values
     const runtime = N / fs;
 
-    const msg = Waveform({ ...config, N: N });
+    const msg = getWaveform({ ...config, N: N });
     const xt = msg.x;
     const mt = msg.y;
     const mt_ = msg.integral;
