@@ -97,7 +97,7 @@ function DistortedWaveform(config) {
     // https://dsp.stackexchange.com/a/48220
     const df = fs / N;
     // const fslice = round(xflim[1] / df);
-    const freqPoints = transformAsPoints(freq.xf, freq.yf, null);
+    const freqPoints = transformAsPoints(freq.xf, freq.yfdBm, null);
 
     // const { thd, thdn } = getDistortion();
 

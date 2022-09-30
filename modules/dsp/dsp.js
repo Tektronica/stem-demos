@@ -248,7 +248,7 @@ function windowed_fft(yt, xt, windfunc = 'rectangular') {
         const thdn = THDN_F(xf_rfft, yf_rfft, Fs, N, main_lobe_width, 0, 100e3);
         const thd = THD(xf_rfft, yf_rfft, Fs, N, main_lobe_width);
 
-        return { xf: xf_kHz, yf: yf_rfft, mlw: main_lobe_width, fft_length: fft_length, rms: yrms, fs: Fs, samples: N, thd: thd, thdn: thdn };
+        return { xf: xf_kHz, yf: yf_rfft, yfdBm: yfdBm, mlw: main_lobe_width, fft_length: fft_length, rms: yrms, fs: Fs, samples: N, thd: thd, thdn: thdn };
 
     } catch (error) {
         console.error(error)

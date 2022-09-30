@@ -18,15 +18,15 @@ export default function Harmonics() {
         fs: 80000,  // Hz
         main_lobe_error: 0.06,
         harmonics: {
-            2: 0.2,
-            3: 0,
-            4: 0.2,
-            5: 0,
-            6: 0.2,
-            7: 0,
+            2: 0,
+            3: 0.2,
+            4: 0,
+            5: 0.2,
+            6: 0,
+            7: 0.2,
             8: 0,
-            9: 0,
-            10: 0.1
+            9: 0.2,
+            10: 0
         },
     });
 
@@ -83,8 +83,9 @@ export default function Harmonics() {
                     dashed: false
                 },
             ],
-            xlim: plots.spectral.xlim,
-            ylim: [-0.1, null]
+            // xlim: plots.spectral.xlim,
+            xlim: [null, 20],
+            ylim: [null, null]
         });
     };
 
