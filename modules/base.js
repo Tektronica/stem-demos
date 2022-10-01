@@ -288,6 +288,88 @@ export function rand(dimensions) {
     };
 };
 
+export function randint({ low, high = null, size = null }) {
+    // return random integers from low (inclusive) to high (exclusive)
+
+    /* 
+    low: int or array-like of ints
+        Lowest (signed) integers to be drawn from the distribution
+            > [ low, high )
+        > if high=None, the low parameter is one above the highest return
+            > [ 0, low )
+
+    high: int or array-like of ints, (optional)
+        One above the largest (signed) integer to be drawn from the distribution
+            > [ low, high )
+
+    size: int or tuple of ints, (optional)
+        Output shape. If the given shape is, e.g., (m, n, k), then m * n * k samples are drawn.
+
+    out: int or array of ints
+        size-shaped array of random integers from the appropriate distribution
+        > if size=null, a single random int returned
+    */
+
+    function getInt(r) {
+        // returns a bounded integer given a random r
+        const min = Math.ceil(low);
+        const max = Math.floor(high);
+        return Math.floor(r * (max - min) + low);
+    };
+
+    if (size) {
+        return (rand(size)).map(r => getInt(r));
+    } else {
+        return getInt(rand([1])[0])
+    }
+};
+
+export function normal({ loc, scale, size }) {
+    // draw random samples from a normal (Gaussian) distribution
+    // https://stackoverflow.com/a/36481059/3382269
+    // https://stackoverflow.com/a/49434653/3382269
+    // https://www.sharpsightlabs.com/blog/numpy-random-normal/
+
+    /*
+    loc: float or array_like of floats
+        Mean (“centre”) of the distribution.
+
+    scale: float or array_like of floats
+        Standard deviation (spread or “width”) of the distribution. Must be non-negative.
+
+    size: int or tuple of ints, (optional)
+        Output shape. If the given shape is, e.g., (m, n, k), then m * n * k samples are drawn. If size is None (default), a single value is returned if loc and scale are both scalars. Otherwise, np.broadcast(loc, scale).size samples are drawn.
+
+    out: array or scalar
+        Drawn samples from the parameterized normal distribution.
+    */
+    // Standard Normal variate using Box-Muller transform.
+
+    // function randn_bm() {
+    //     let u = 1 - Math.random(); //Converting [0,1) to (0,1)
+    //     let v = Math.random();
+    //     return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+    // };
+
+
+    function randn_bm() {
+        let u = 0, v = 0;
+        while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
+        while(v === 0) v = Math.random();
+        let num = Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+        num = num / 10.0 + 0.5; // Translate to 0 -> 1
+        if (num > 1 || num < 0) return randn_bm() // resample between 0 and 1
+        return num
+      }
+      
+    const k = empty(size);
+    k.forEach(function (pos, idx) {
+        k[idx] = randn_bm();
+    })
+
+    return k;
+};
+
 export function fftfreq(n, d = 1.0) {
     /* 
     Return the Discrete Fourier Transform sample frequencies.
