@@ -1,4 +1,4 @@
-// https://github.com/Tektronica/projectile_demos
+// https://github.com/Tektronica/modulation_schemes
 import { useEffect, useState } from "react";
 
 import Layout from "../components/layout";
