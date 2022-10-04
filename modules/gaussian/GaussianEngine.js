@@ -1,7 +1,12 @@
-import { arange, linspace, normal, zeros, round, min, max } from "../base";
+import { arange, linspace, normal, zeros, mean, round, min, max } from "../base";
+import { mean_absolute_percentage_error } from "./fitnessTest";
 
 // https://stackoverflow.com/a/49434653/3382269
 // https://jsfiddle.net/2uc346hp/
+
+function normalize({ data, N }) {
+    return data.map((d) => (d / N));
+};
 
 function transformAsPoints(x, y, slice = undefined) {
     // convert to pointData rather than datasets x=[...] and y=[...]
@@ -23,58 +28,30 @@ function transformAsPoints(x, y, slice = undefined) {
     return points;
 };
 
-// Standard Normal variate using Box-Muller transform.
-function randn_bm() {
-    let u = 1 - Math.random(); //Converting [0,1) to (0,1)
-    let v = Math.random();
-    return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-}
+function gaussianCurve({ mean = 0, stddev = 1, N }) {
+    // https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norm.html
+    // https://stackoverflow.com/a/47763007/3382269
 
-function randn_bm1() {
-    let u = 0, v = 0;
-    while (u === 0) u = Math.random(); //Converting [0,1) to (0,1)
-    while (v === 0) v = Math.random();
-    let num = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+    const start = mean - 3 * stddev;
+    const end = mean + 3 * stddev;
+    const xrange = linspace(start, end, N)
 
-    num = num / 10.0 + 0.5; // Translate to 0 -> 1
-    if (num > 1 || num < 0) return randn_bm1() // resample between 0 and 1
-    return num
-};
+    const variance = stddev ** 2;
 
-const randn_bm2 = (min, max, skew) => {
-    var u = 0, v = 0;
-    while (u === 0) u = Math.random(); //Converting [0,1) to (0,1)
-    while (v === 0) v = Math.random();
-    let k = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-
-    let num = k / 10.0 + 0.5; // Translate to 0 -> 1
-    if (num > 1 || num < 0) num = randn_bm2(min, max, skew); // resample between 0 and 1 if out of range
-    // num = Math.pow(num, skew); // Skew
-    num *= max - min; // Stretch to fill range
-    num += min; // offset to min
-    return num;
-}
-
-const round_to_precision = (x, precision) => {
-    var y = +x + (precision === undefined ? 0.5 : precision / 2);
-    return y - (y % (precision === undefined ? 1 : +precision));
+    const C = Math.sqrt(2.0 * Math.PI);
+    const norm = xrange.map(x => (Math.exp(-((x - mean) ** 2) / 2 * variance) / C));
+    return { xrange, norm };
 };
 
 function histogram({ data = [], min_val = null, max_val = null, nbins = 10 }) {
     // https://stackoverflow.com/questions/21619347/creating-a-python-histogram-without-pylab
     // https://stackoverflow.com/a/21626237/3382269
 
-    // const hist_vals = zeros([10]);
-    // var bin_number = 0;
-    // data.forEach(function (value, idx) {
-    //     bin_number = round((nbins * ((value - min_val) / (max_val - min_val))))
-    //     hist_vals[bin_number] += 1;
-    // });
     const histLength = nbins + 1;
     let hist_vals = zeros([histLength]);
 
-    // if (!min_val) { min_val = Math.min(data) };
-    // if (!max_val) { max_val = Math.max(data) };
+    if (!min_val) { min_val = min(data) };
+    if (!max_val) { max_val = max(data) };
 
     data.forEach(function (d) {
         let bin_number = round(nbins * ((d - min_val) / (max_val - min_val)));
@@ -94,74 +71,59 @@ function histogram({ data = [], min_val = null, max_val = null, nbins = 10 }) {
     return { hist: hist_vals, bounds: bin_lower_bounds };
 };
 
-// function Gaussian() {
-//     let n = 10000;
-//     let step = 1;
-//     let max = 100;
-//     let min = 0;
-//     let data = {};
+function Gaussian({ mean, stddev, N, bins = 10 }) {
 
-
-//     // Seed data with a bunch of 0s
-//     for (let j = min; j < max; j += step) {
-//         data[j] = 0;
-//     }
-
-//     // Create n samples between min and max
-//     for (var i = 0; i < n; i += step) {
-//         // let rand_num = randn_bm();
-//         // let rand_num = randn_bm1();
-//         let rand_num = randn_bm2(min, max, 1);
-//         // let rounded = round_to_precision(rand_num, step)
-//         let rounded = round(rand_num)
-//         data[rounded] += 1;
-//     }
-
-//     // Count number of samples at each increment
-//     let hc_data = [];
-//     for (const [key, val] of Object.entries(data)) {
-//         hc_data.push({ "x": parseFloat(key), "y": val });
-//     }
-
-//     // Sort
-//     hc_data = hc_data.sort(function (a, b) {
-//         if (a.x < b.x) return -1;
-//         if (a.x > b.x) return 1;
-//         return 0;
-//     });
-
-//     return ({
-//         data: hc_data,
-//         sorted: hc_data,
-//         xlim: [null, null],
-//         ylim: [null, null]
-//     });
-// }
-
-function Gaussian({ mean, std, N }) {
-
-    // const x = linspace(0, N, 1);
     const x = arange(0, N, 1);
-
     const y = normal({
         loc: mean,
-        scale: std,
+        scale: stddev,
         size: [N]
     });
 
+    // transform the [x,y] values into plottable points
     const points = transformAsPoints(x, y);
 
-    const { hist, bounds } = histogram({ data: [...y], min_val: 0, max_val: 1, nbins: 10 });
-    const xx = linspace(0, 1, 11)
-    const sorted = transformAsPoints(xx, hist);
+    // histrogram
+    const { hist, bounds } = histogram({ data: [...y], nbins: bins });
+    const binWidth = Math.abs(bounds[1] - bounds[2]);
 
-    return ({
-        data: points,
-        sorted: sorted,
-        xlim: [null, null],
-        ylim: [null, null]
+    // normalized histogram
+    // https://stackoverflow.com/a/20057520/3382269
+    const scaling = binWidth * N;  // bin_width*total length of data
+    const normalized = normalize({ data: hist, N: scaling });
+
+    // transform the [x,y] values into plottable points
+    const sorted = transformAsPoints(bounds, normalized);
+
+    // get smooth gaussian
+    const { xrange, norm } = gaussianCurve({
+        mean: mean,
+        stddev: stddev,
+        N: bins + 1
     });
 
+    const smooth = transformAsPoints(xrange, norm);
+
+    // fit test
+    const fitTest = mean_absolute_percentage_error({ y_test: normalized, y_actual: norm });
+
+    return ({
+        raw: {
+            data: points,
+            hist: sorted,
+            xlim: [null, null],
+            ylim: [null, null]
+        },
+        smooth: {
+            data: smooth,
+            xlim: [null, null],
+            ylim: [null, null]
+        },
+        results: {
+            binWidth: binWidth,
+            fitTest: fitTest
+        }
+    });
 };
 
 export { Gaussian };

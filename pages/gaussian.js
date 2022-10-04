@@ -10,16 +10,15 @@ import LinePlot from "../components/charts/LinePlot";
 // custom math module imports
 
 import { arange, linspace, normal, round, zeros } from "../modules/base";
-import { getModulation } from "../modules/modulation/modulationEngine";
-import { ModeLocked } from "../modules/lasers/LaserEngine";
 import { Gaussian } from "../modules/gaussian/GaussianEngine";
 
 export default function LaserModeLocking() {
     const [results, setResults] = useState({});
     const [config, setConfig] = useState({
-        mean: 0,  // (THz) actual vacuum frequency of HeNe (632.991 nm)
-        std: 1,  // standard deviation
+        mean: 0,  // mean
+        stddev: 1,  // standard deviation
         N: 10000,  // samples
+        bins: 40,  // bins
     });
 
     // chart data arranged as point
@@ -41,31 +40,32 @@ export default function LaserModeLocking() {
     function getData() {
         const plots = Gaussian(config);
 
-        // setResults({
-        //     fc: config.fc,
-        //     runtime: plots.time.runtime,
+        setResults({
+            fc: config.mean,
+            stddev: config.stddev,
 
-        //     fs: config.fs,
-        //     N: plots.time.N,
+            samples: config.N,
+            bins: config.bins,
 
-        //     laser_bw: plots.time.laser_bw,
-        //     wavelength: plots.time.wavelength,
-        //     cavity_modes: plots.time.cavity_modes,
-        //     cavity_length: plots.time.length,
-        //     df: plots.time.df,
-        //     longitudinal: plots.time.df,
-        //     fwhm: plots.time.fwhm,
-        //     fwhm_width: plots.time.fwhm_width,
-        // });
+            binWidth: plots.results.binWidth,
+            fit: plots.results.fitTest,
+        });
 
         setGaussData({
             datasets: [
                 {
-                    data: plots.data,
+                    data: plots.raw.data,
                     label: 'Gaussian',
                     color: 'rgba(244,114,182,1)',
                     dashed: false
-                }],
+                },
+                // {
+                //     data: plots.smooth.data,
+                //     label: 'Gaussian',
+                //     color: 'rgba(244,114,182,1)',
+                //     dashed: true
+                // }
+            ],
             xlim: [null, null],
             ylim: [null, null]
         });
@@ -73,21 +73,27 @@ export default function LaserModeLocking() {
         setDistributionData({
             datasets: [
                 {
-                    data: plots.sorted,
+                    data: plots.raw.hist,
                     label: 'Percent Chance',
                     color: 'rgba(244,114,182,1)',
                     dashed: false
-                }],
+                },
+                {
+                    data: plots.smooth.data,
+                    label: 'Curve',
+                    // color: 'rgba(244,114,182,1)',
+                    dashed: true
+                }
+            ],
             xlim: [null, null],
             ylim: [null, null]
         });
 
-
         // setDimension({
-        //     label: `BW = ${plots.time.bw} Hz`,
-        //     xMin: (config.fc - plots.time.bw / 2) / 1000,
-        //     xMax: (config.fc + plots.time.bw / 2) / 1000,
-        //     y: -0.05
+        //     label: `Standard Deviation = ${config.stddev}`,
+        //     xMin: (config.mean - config.stddev),
+        //     xMax: (config.mean + config.stddev),
+        //     y: 0.03
         // })
     };
 
@@ -95,20 +101,6 @@ export default function LaserModeLocking() {
     function handleSlider(evt, newVal) {
         // unpack id to get classification
         const [category, type] = (evt.target.id).split('-');
-        console.log(type, newVal)
-        // update state of category type
-        // https://stackoverflow.com/a/46209368/3382269
-        setConfig((current) => ({ ...current, [type]: newVal }));
-    };
-
-    // handles the slider value update
-    function handleSelect(evt) {
-        // unpack id to get classification
-        const [category, type] = (evt.target.id).split('-');
-
-        // https://stackoverflow.com/a/66814808/3382269
-        const newVal = evt.target.value;
-
         console.log(type, newVal)
         // update state of category type
         // https://stackoverflow.com/a/46209368/3382269
@@ -139,22 +131,19 @@ export default function LaserModeLocking() {
 
                     <div className="p-2 bg-slate-100 font-mono text-sm">
                         <div className="grid grid-cols-3 gap-2">
-                            <div className="grid grid-rows-3">
-                                <ResultsItem label={'Carrier Frequency'} result={config.fc} roundTo={3} units={'Hz'} />
-                                <ResultsItem label={'Modulating Frequency'} result={config.fm} roundTo={3} units={'Hz'} />
-                                <ResultsItem label={'Sampling Frequency'} result={config.fs} roundTo={3} units={'Hz'} />
+                            <div className="grid grid-rows-2">
+                                <ResultsItem label={'Mean (μ)'} result={config.mean} roundTo={3} units={''} />
+                                <ResultsItem label={'Standard Deviation (σ)'} result={config.stddev} roundTo={3} units={''} />
                             </div>
 
-                            <div className="grid grid-rows-3">
-                                <ResultsItem label={'Bandwidth'} result={results.bw} roundTo={3} units={'Hz'} />
-                                <ResultsItem label={'RMS'} result={results.rms} roundTo={3} units={''} />
-                                <ResultsItem label={'Runtime'} result={results.runtime} roundTo={3} units={'s'} />
+                            <div className="grid grid-rows-2">
+                                <ResultsItem label={'Samples'} result={results.samples} roundTo={3} units={''} />
+                                <ResultsItem label={'Bins'} result={results.bins} roundTo={3} units={''} />
                             </div>
 
-                            <div className="grid grid-rows-3">
-                                <ResultsItem label={'FFT length'} result={results.fft_length} roundTo={3} units={''} />
-                                <ResultsItem label={'Samples'} result={results.N} roundTo={3} units={''} />
-                                <ResultsItem label={'Bin Size'} result={results.binSize} roundTo={3} units={'Hz/S'} />
+                            <div className="grid grid-rows-2">
+                                <ResultsItem label={'Bin Width'} result={results.binWidth} roundTo={3} units={''} />
+                                <ResultsItem label={'Fit'} result={results.fitTest} roundTo={3} units={''} />
                             </div>
                         </div>
                     </div>
@@ -168,24 +157,102 @@ export default function LaserModeLocking() {
                         title='Normal Distribution'
                         xlim={distributionData.xlim}
                         ylim={distributionData.ylim}
+                        dimension={dimension}
                         height={400}
-                    // title='Sampled Time Series Data'
                     />
 
                 </div>
-                <div>
+                {/* <div>
                     <LinePlot
                         pointData={gaussData.datasets}
                         title='Gaussian Noise'
                         xlim={gaussData.xlim}
                         ylim={gaussData.ylim}
                         height={150}
-                    // title='Sampled Time Series Data'
                     />
+
+                </div> */}
+            </ShadowBox>
+
+            <ShadowBox>
+                <div className="grid grid-cols-1 gap-2">
+
+                    <div className="grid grid-cols-2 gap-2">
+                        <div className="border rounded shadow">
+                            <div className="p-2 flex border-b bg-slate-100">
+                                <label className="font-bold text-cyan-800 uppercase">
+                                    Normal Distribution
+                                </label>
+                            </div>
+                            <div className="grid grid-cols-2 px-2">
+                                <div>
+                                    <label className="font-bold text-cyan-800">
+                                        Mean
+                                    </label>
+                                    <RangeSlider
+                                        onChange={(evt) => handleSlider(evt, evt.target.valueAsNumber)}
+                                        id={'slider-mean'}
+                                        type="range"
+                                        min={0}
+                                        max={8}
+                                        step={2}
+                                        defaultValue={config.mean}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="font-bold text-cyan-800">
+                                        Standard Deviation
+                                    </label>
+                                    <RangeSlider
+                                        onChange={(evt) => handleSlider(evt, evt.target.valueAsNumber)}
+                                        id={'slider-stddev'}
+                                        type="range"
+                                        min={1}
+                                        max={5}
+                                        step={1}
+                                        defaultValue={config.stddev}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="border rounded shadow">
+                            <div className="p-2 flex border-b bg-slate-100">
+                                <label className="font-bold text-cyan-800 uppercase">
+                                    Sampling
+                                </label>
+                            </div>
+                            <div className="grid grid-cols-2 px-2">
+                                <div>
+                                    <label className="font-bold text-cyan-800">Samples (kS)</label>
+                                    <RangeSlider
+                                        onChange={(evt) => handleSlider(evt, (evt.target.valueAsNumber * 1000))}
+                                        id={'slider-N'}
+                                        type="range"
+                                        min={10}
+                                        max={100}
+                                        step={30}
+                                        defaultValue={(config.N / 1000)}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="font-bold text-cyan-800">Bins</label>
+                                    <RangeSlider
+                                        onChange={(evt) => handleSlider(evt, evt.target.valueAsNumber)}
+                                        id={'slider-bins'}
+                                        type="range"
+                                        min={10}
+                                        max={100}
+                                        step={30}
+                                        defaultValue={config.bins}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
             </ShadowBox>
-
 
         </>
     )

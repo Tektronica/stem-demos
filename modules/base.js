@@ -115,6 +115,17 @@ export function abs(arr) {
     }
 };
 
+export function min(arr) {
+    // returns the indices of the maximum values along an axis.
+    // TODO: support multiple axes (recursive call)
+    if (arr.length === 0) {
+        return -1;
+    }
+
+    return Math.min(...arr);
+};
+
+
 export function max(arr) {
     // returns the indices of the maximum values along an axis.
     // TODO: support multiple axes (recursive call)
@@ -328,6 +339,8 @@ export function normal({ loc, scale, size }) {
     // draw random samples from a normal (Gaussian) distribution
     // https://stackoverflow.com/a/36481059/3382269
     // https://stackoverflow.com/a/49434653/3382269
+    // https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform#Implementation
+    // https://mika-s.github.io/javascript/random/normal-distributed/2019/05/15/generating-normally-distributed-random-numbers-in-javascript.html
     // https://www.sharpsightlabs.com/blog/numpy-random-normal/
 
     /*
@@ -345,29 +358,24 @@ export function normal({ loc, scale, size }) {
     */
     // Standard Normal variate using Box-Muller transform.
 
-    // function randn_bm() {
-    //     let u = 1 - Math.random(); //Converting [0,1) to (0,1)
-    //     let v = Math.random();
-    //     return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-    // };
+    function randn_bm(mu, sigma) {
+        let u1 = Math.random();
+        let u2 = Math.random();
 
+        //compute z0 and z1 transforms
+        const mag = sigma * Math.sqrt(-2.0 * Math.log(u1));
+        const z0 = mag * Math.cos(2.0 * Math.PI * u2) + mu;
+        const z1 = mag * Math.sin(2.0 * Math.PI * u2) + mu;
 
-    function randn_bm() {
-        let u = 0, v = 0;
-        while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
-        while(v === 0) v = Math.random();
-        let num = Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
-        num = num / 10.0 + 0.5; // Translate to 0 -> 1
-        if (num > 1 || num < 0) return randn_bm() // resample between 0 and 1
-        return num
-      }
-      
-    const k = empty(size);
-    k.forEach(function (pos, idx) {
-        k[idx] = randn_bm();
+        return {z0, z1}
+    }
+
+    const data = empty(size);
+    data.forEach(function (pos, idx) {
+        data[idx] = (randn_bm(loc, scale)).z0;
     })
 
-    return k;
+    return data;
 };
 
 export function fftfreq(n, d = 1.0) {
@@ -417,7 +425,7 @@ export function linspace(startValue, stopValue, cardinality) {
     var step = (stopValue - startValue) / (cardinality - 1);
     for (var i = 0; i < cardinality; i++) {
         arr.push(startValue + (step * i));
-    }
+    };
     return arr;
 };
 
